@@ -1,5 +1,6 @@
 import { StorefrontNav } from "@/components/storefront/nav";
 import { Footer } from "@/components/storefront/footer";
+import { ChatWidget } from "@/components/storefront/chat-widget";
 
 export default function ShopLayout({
   children,
@@ -11,6 +12,7 @@ export default function ShopLayout({
       <StorefrontNav />
       <main className="flex-1">{children}</main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }
