@@ -128,7 +128,7 @@ export default function AdminComplaintsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: limit }).map((_, i) => (
             <Skeleton key={i} className="h-32 w-full" />
           ))}
         </div>
