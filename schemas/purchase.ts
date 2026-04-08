@@ -1,0 +1,46 @@
+import { z } from "zod/v4";
+
+export const purchaseItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.number().int().positive(),
+});
+
+export const purchaseSchema = z
+  .object({
+    items: z.array(purchaseItemSchema).min(1, "Cart is empty"),
+    customerEmail: z.string().email("Valid email required").optional().or(z.literal("")),
+    paymentMethod: z.string().min(1, "Payment method is required"),
+    phoneNumber: z.string().optional().default(""),
+    transactionId: z.string().optional().default(""),
+    shippingName: z.string().min(1, "Name is required"),
+    shippingPhone: z.string().min(1, "Shipping phone is required"),
+    shippingAddress: z.string().min(1, "Address is required"),
+    shippingCity: z.string().min(1, "City is required"),
+    notes: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      data.paymentMethod === "Cash on Delivery" ||
+      (data.phoneNumber && data.phoneNumber.length > 0),
+    {
+      message: "Payer phone number is required",
+      path: ["phoneNumber"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.paymentMethod === "Cash on Delivery" ||
+      (data.transactionId && data.transactionId.length > 0),
+    {
+      message: "Transaction ID is required",
+      path: ["transactionId"],
+    }
+  );
+
+export const updatePurchaseSchema = z.object({
+  purchaseId: z.string().min(1, "Purchase ID is required"),
+  status: z.enum(["approved", "rejected"]),
+});
+
+export type PurchaseInput = z.infer<typeof purchaseSchema>;
+export type UpdatePurchaseInput = z.infer<typeof updatePurchaseSchema>;

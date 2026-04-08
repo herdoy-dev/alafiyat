@@ -1,0 +1,54 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getAdminUser } from "@/lib/auth";
+import { updateCategorySchema } from "@/schemas/category";
+import { validationError } from "@/lib/api-utils";
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const parsed = updateCategorySchema.safeParse(body);
+    if (!parsed.success) return validationError(parsed);
+
+    const category = await prisma.category.update({
+      where: { id },
+      data: parsed.data,
+    });
+    return NextResponse.json({ category });
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    await prisma.category.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
