@@ -67,7 +67,7 @@ export async function PATCH(request: Request) {
     const social = body?.social as Record<string, unknown> | undefined;
     const heroProductIds = body?.heroProductIds as unknown;
 
-    const ops: Promise<unknown>[] = [];
+    const ops = [] as ReturnType<typeof prisma.siteSetting.upsert>[];
 
     if (social && typeof social === "object") {
       for (const key of SOCIAL_KEYS) {
@@ -103,9 +103,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    await prisma.$transaction(
-      ops as Parameters<typeof prisma.$transaction>[0]
-    );
+    await prisma.$transaction(ops);
 
     return NextResponse.json(await readSettings());
   } catch {

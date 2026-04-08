@@ -26,7 +26,7 @@ function UsersContent() {
     role: searchParams.get("role") || "",
   };
   const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 8;
+  const limit = Number(searchParams.get("limit")) || 10;
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -36,7 +36,7 @@ function UsersContent() {
         if (value) params.set(key, value);
       });
       if (!params.has("page")) params.set("page", "1");
-      if (!params.has("limit")) params.set("limit", "8");
+      if (!params.has("limit")) params.set("limit", "10");
       const qs = params.toString();
       const res = await fetch(`/api/admin/users?${qs}`);
       if (res.ok) {

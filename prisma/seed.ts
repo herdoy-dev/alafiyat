@@ -256,8 +256,43 @@ const sampleOrders = [
   },
 ];
 
+const sampleComplaints = [
+  {
+    fullName: "Jamil Hossain",
+    phone: "01799999991",
+    email: "jamil@example.com",
+    message:
+      "My order arrived with a damaged box and one item was scratched. Please advise on a replacement.",
+    status: "open",
+  },
+  {
+    fullName: "Sumaiya Akter",
+    phone: "01799999992",
+    email: "sumaiya@example.com",
+    message:
+      "Delivery was 3 days late. The product itself is great, but the courier never updated the tracking.",
+    status: "resolved",
+  },
+  {
+    fullName: "Imran Khan",
+    phone: "01799999993",
+    email: "imran@example.com",
+    message:
+      "I paid via bKash but the order still shows pending. Transaction ID: TX123456. Please verify.",
+    status: "open",
+  },
+];
+
 async function main() {
   console.log("🌱 Seeding database...");
+
+  // Wipe data (keeps admin user + site settings)
+  await prisma.complaint.deleteMany();
+  await prisma.purchase.deleteMany(); // cascades PurchaseItem
+  await prisma.customer.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
+  console.log("✓ Cleared products, categories, customers, complaints, orders");
 
   // Admin user
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
@@ -300,11 +335,7 @@ async function main() {
   }
   console.log(`✓ Seeded ${products.length} products`);
 
-  // Orders — wipe old seed orders first to avoid duplicates
-  await prisma.purchase.deleteMany({
-    where: { transactionId: { in: sampleOrders.map((o) => o.transactionId) } },
-  });
-
+  // Orders — also upsert a Customer per order, mirroring checkout flow
   const productMap = new Map(
     (await prisma.product.findMany()).map((p) => [p.slug, p])
   );
@@ -326,8 +357,26 @@ async function main() {
       0
     );
 
+    const customer = await prisma.customer.upsert({
+      where: { phone: order.shippingPhone },
+      create: {
+        fullName: order.shippingName,
+        phone: order.shippingPhone,
+        email: order.customerEmail,
+        address: order.shippingAddress,
+        city: order.shippingCity,
+      },
+      update: {
+        fullName: order.shippingName,
+        email: order.customerEmail ?? undefined,
+        address: order.shippingAddress,
+        city: order.shippingCity,
+      },
+    });
+
     await prisma.purchase.create({
       data: {
+        customerId: customer.id,
         customerEmail: order.customerEmail,
         amount,
         paymentMethod: order.paymentMethod,
@@ -342,7 +391,16 @@ async function main() {
       },
     });
   }
-  console.log(`✓ Seeded ${sampleOrders.length} sample orders`);
+  const customerCount = await prisma.customer.count();
+  console.log(
+    `✓ Seeded ${sampleOrders.length} orders + ${customerCount} customers`
+  );
+
+  // Complaints
+  for (const c of sampleComplaints) {
+    await prisma.complaint.create({ data: c });
+  }
+  console.log(`✓ Seeded ${sampleComplaints.length} complaints`);
 
   console.log("✅ Done");
 }

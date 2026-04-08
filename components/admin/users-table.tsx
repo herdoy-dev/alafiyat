@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataPagination } from "@/components/admin/data-pagination";
 
 type User = {
   id: string;
@@ -42,8 +42,6 @@ interface UsersTableProps {
   onLimitChange: (limit: number) => void;
 }
 
-const PAGE_SIZE_OPTIONS = [8, 16, 32, 50];
-
 export function UsersTable({
   users,
   loading,
@@ -55,7 +53,6 @@ export function UsersTable({
   onPageChange,
   onLimitChange,
 }: UsersTableProps) {
-  const totalPages = Math.max(1, Math.ceil(total / limit));
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -162,53 +159,14 @@ export function UsersTable({
         </div>
       )}
 
-      {/* Pagination */}
-      {!loading && total > PAGE_SIZE_OPTIONS[0] && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Rows per page</span>
-            <Select
-              value={String(limit)}
-              onValueChange={(v) => onLimitChange(Number(v))}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Page {page} of {totalPages}
-            </span>
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                disabled={page <= 1}
-                onClick={() => onPageChange(page - 1)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                disabled={page >= totalPages}
-                onClick={() => onPageChange(page + 1)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+      {!loading && users.length > 0 && (
+        <DataPagination
+          page={page}
+          limit={limit}
+          total={total}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
+        />
       )}
     </div>
   );

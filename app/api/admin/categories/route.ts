@@ -4,19 +4,28 @@ import { getAdminUser } from "@/lib/auth";
 import { categorySchema } from "@/schemas/category";
 import { validationError } from "@/lib/api-utils";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const admin = await getAdminUser();
     if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const categories = await prisma.category.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { products: true } } },
-    });
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 10));
 
-    return NextResponse.json({ categories });
+    const [categories, total] = await Promise.all([
+      prisma.category.findMany({
+        orderBy: { name: "asc" },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: { _count: { select: { products: true } } },
+      }),
+      prisma.category.count(),
+    ]);
+
+    return NextResponse.json({ categories, total });
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },

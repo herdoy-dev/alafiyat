@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/components/providers/auth-provider";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn, getInitials } from "@/lib/utils";
@@ -14,6 +13,8 @@ import {
   Package,
   Tag,
   Users,
+  UserRound,
+  MessageSquareWarning,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -23,7 +24,9 @@ const navItems = [
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Categories", href: "/admin/categories", icon: Tag },
   { label: "Orders", href: "/admin/purchases", icon: ShoppingCart },
-  { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Customers", href: "/admin/customers", icon: UserRound },
+  { label: "Admins", href: "/admin/users", icon: Users },
+  { label: "Complaints", href: "/admin/complaints", icon: MessageSquareWarning },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
@@ -38,7 +41,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
+      <div className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-4">
         <Image
           src="/logo.png"
           alt="Al Amirat"
@@ -46,9 +49,6 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
           height={32}
           className="h-7 w-auto"
         />
-        <Badge variant="destructive" className="text-[10px]">
-          Admin
-        </Badge>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">

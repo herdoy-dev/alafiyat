@@ -24,6 +24,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DataPagination,
+  DEFAULT_PAGE_SIZE,
+} from "@/components/admin/data-pagination";
 
 type Category = {
   id: string;
@@ -45,6 +49,9 @@ function slugify(input: string) {
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
@@ -54,17 +61,20 @@ export default function AdminCategoriesPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/categories");
+      const res = await fetch(
+        `/api/admin/categories?page=${page}&limit=${limit}`
+      );
       if (res.ok) {
         const data = await res.json();
         setCategories(data.categories);
+        setTotal(data.total);
       }
     } catch {
       toast.error("Failed to load categories");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => {
     fetchCategories();
@@ -148,9 +158,9 @@ export default function AdminCategoriesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Categories</CardTitle>
+          <CardTitle>All Categories ({total})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {loading ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -162,7 +172,8 @@ export default function AdminCategoriesPage() {
               No categories yet. Click &quot;New Category&quot; to add one.
             </p>
           ) : (
-            <div className="rounded-md border">
+            <>
+              <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -218,7 +229,18 @@ export default function AdminCategoriesPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+              </div>
+              <DataPagination
+                page={page}
+                limit={limit}
+                total={total}
+                onPageChange={setPage}
+                onLimitChange={(l) => {
+                  setLimit(l);
+                  setPage(1);
+                }}
+              />
+            </>
           )}
         </CardContent>
       </Card>

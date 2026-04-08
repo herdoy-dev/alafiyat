@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Eye } from "lucide-react";
+import { DataPagination } from "@/components/admin/data-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,8 +62,6 @@ interface PurchasesTableProps {
   onLimitChange: (limit: number) => void;
 }
 
-const PAGE_SIZE_OPTIONS = [8, 16, 32, 50];
-
 function StatusBadge({ status }: { status: string }) {
   const variant =
     status === "approved"
@@ -86,7 +86,6 @@ export function PurchasesTable({
   onPageChange,
   onLimitChange,
 }: PurchasesTableProps) {
-  const totalPages = Math.max(1, Math.ceil(total / limit));
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -224,36 +223,47 @@ export function PurchasesTable({
                     {new Date(purchase.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    {purchase.status === "pending" ? (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="success"
-                          loading={
-                            processingId?.id === purchase.id &&
-                            processingId.action === "approved"
-                          }
-                          disabled={processingId?.id === purchase.id}
-                          onClick={() => onAction(purchase.id, "approved")}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          loading={
-                            processingId?.id === purchase.id &&
-                            processingId.action === "rejected"
-                          }
-                          disabled={processingId?.id === purchase.id}
-                          onClick={() => onAction(purchase.id, "rejected")}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">-</span>
-                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        title="View details"
+                        asChild
+                      >
+                        <Link href={`/admin/purchases/${purchase.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      {purchase.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="success"
+                            loading={
+                              processingId?.id === purchase.id &&
+                              processingId.action === "approved"
+                            }
+                            disabled={processingId?.id === purchase.id}
+                            onClick={() => onAction(purchase.id, "approved")}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            loading={
+                              processingId?.id === purchase.id &&
+                              processingId.action === "rejected"
+                            }
+                            disabled={processingId?.id === purchase.id}
+                            onClick={() => onAction(purchase.id, "rejected")}
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -262,52 +272,14 @@ export function PurchasesTable({
         </div>
       )}
 
-      {!loading && total > PAGE_SIZE_OPTIONS[0] && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Rows per page</span>
-            <Select
-              value={String(limit)}
-              onValueChange={(v) => onLimitChange(Number(v))}
-            >
-              <SelectTrigger className="h-8 w-17.5">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Page {page} of {totalPages}
-            </span>
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                disabled={page <= 1}
-                onClick={() => onPageChange(page - 1)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                disabled={page >= totalPages}
-                onClick={() => onPageChange(page + 1)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+      {!loading && purchases.length > 0 && (
+        <DataPagination
+          page={page}
+          limit={limit}
+          total={total}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
+        />
       )}
     </div>
   );

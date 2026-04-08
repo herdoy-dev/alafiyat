@@ -43,7 +43,7 @@ function PurchasesContent() {
     method: searchParams.get("method") || "",
   };
   const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 8;
+  const limit = Number(searchParams.get("limit")) || 10;
 
   const fetchPurchases = useCallback(async () => {
     try {
@@ -53,7 +53,7 @@ function PurchasesContent() {
         if (value) params.set(key, value);
       });
       if (!params.has("page")) params.set("page", "1");
-      if (!params.has("limit")) params.set("limit", "8");
+      if (!params.has("limit")) params.set("limit", "10");
       const qs = params.toString();
       const res = await fetch(`/api/admin/purchases?${qs}`);
       if (res.ok) {

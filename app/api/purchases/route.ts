@@ -42,9 +42,30 @@ export async function POST(request: Request) {
     });
 
     const isCod = parsed.data.paymentMethod === "Cash on Delivery";
+
+    // Find-or-create customer keyed by phone; refresh latest contact details
+    const customerEmail = parsed.data.customerEmail || null;
+    const customer = await prisma.customer.upsert({
+      where: { phone: parsed.data.shippingPhone },
+      create: {
+        fullName: parsed.data.shippingName,
+        phone: parsed.data.shippingPhone,
+        email: customerEmail,
+        address: parsed.data.shippingAddress,
+        city: parsed.data.shippingCity,
+      },
+      update: {
+        fullName: parsed.data.shippingName,
+        email: customerEmail ?? undefined,
+        address: parsed.data.shippingAddress,
+        city: parsed.data.shippingCity,
+      },
+    });
+
     const purchase = await prisma.purchase.create({
       data: {
-        customerEmail: parsed.data.customerEmail || null,
+        customerId: customer.id,
+        customerEmail,
         amount,
         paymentMethod: parsed.data.paymentMethod,
         phoneNumber: isCod

@@ -57,8 +57,8 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      {latest.length > 0 ? (
-        <HeroSlider products={latest.slice(0, 6)} />
+      {heroProducts.length > 0 ? (
+        <HeroSlider products={heroProducts} />
       ) : (
         <section className="border-b bg-gradient-to-b from-primary/5 to-background">
           <div className="container mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-24">
