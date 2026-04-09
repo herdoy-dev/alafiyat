@@ -9,6 +9,8 @@ import {
   ShoppingBag,
   TrendingUp,
   Eye,
+  ShieldAlert,
+  Truck,
 } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  computeCustomerRisk,
+  courierStatusVariant,
+  formatCourierStatus,
+  riskVariant,
+} from "@/lib/customer-risk";
 
 function statusVariant(status: string) {
   if (status === "approved") return "success" as const;
@@ -58,6 +66,9 @@ export default async function CustomerDetailsPage({
     (p) => p.status === "approved"
   ).length;
 
+  const risk = computeCustomerRisk(customer.purchases);
+  const { shippedCount, deliveredCount, failedCount } = risk;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -83,7 +94,7 @@ export default async function CustomerDetailsPage({
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Orders"
           value={customer.purchases.length.toString()}
@@ -99,6 +110,24 @@ export default async function CustomerDetailsPage({
           value={`৳${totalSpent.toLocaleString()}`}
           icon={TrendingUp}
         />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Customer Risk
+            </CardTitle>
+            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-1">
+            <Badge variant={riskVariant(risk.level)}>{risk.label}</Badge>
+            <p className="text-xs text-muted-foreground">{risk.description}</p>
+            {shippedCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {deliveredCount} delivered · {failedCount} failed ·{" "}
+                {shippedCount - deliveredCount - failedCount} in transit
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -144,6 +173,7 @@ export default async function CustomerDetailsPage({
                       <TableHead>Items</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Courier</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead className="w-10" />
                     </TableRow>
@@ -163,6 +193,32 @@ export default async function CustomerDetailsPage({
                           <Badge variant={statusVariant(p.status)}>
                             {p.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {p.courierProvider ? (
+                            <div className="flex flex-col items-start gap-1">
+                              <Badge
+                                variant="outline"
+                                className="capitalize"
+                              >
+                                <Truck className="h-3 w-3" />
+                                {p.courierProvider}
+                              </Badge>
+                              {p.courierStatus && (
+                                <Badge
+                                  variant={courierStatusVariant(
+                                    p.courierStatus
+                                  )}
+                                >
+                                  {formatCourierStatus(p.courierStatus)}
+                                </Badge>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              —
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
                           {new Date(p.createdAt).toLocaleDateString()}

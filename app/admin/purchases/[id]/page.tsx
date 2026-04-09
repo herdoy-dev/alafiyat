@@ -8,6 +8,7 @@ import {
   Mail,
   MapPin,
   Phone,
+  ShieldAlert,
   StickyNote,
   Truck,
   User,
@@ -24,12 +25,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { OrderActions } from "./order-actions";
 import { CourierActions, CourierRefreshButton } from "./courier-actions";
-
-function formatCourierStatus(status: string) {
-  return status
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
+import {
+  computeCustomerRisk,
+  formatCourierStatus,
+  riskVariant,
+} from "@/lib/customer-risk";
 
 function courierStatusVariant(status: string) {
   const s = status.toLowerCase();
@@ -66,6 +66,24 @@ export default async function OrderDetailsPage({
     include: { items: true },
   });
   if (!purchase) notFound();
+
+  const customerPurchases = await prisma.purchase.findMany({
+    where: {
+      OR: [
+        ...(purchase.customerId ? [{ customerId: purchase.customerId }] : []),
+        { shippingPhone: purchase.shippingPhone },
+      ],
+    },
+    select: {
+      id: true,
+      courierProvider: true,
+      courierStatus: true,
+      courierSentAt: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  const customerRisk = computeCustomerRisk(customerPurchases);
 
   return (
     <div className="space-y-6">
@@ -175,6 +193,78 @@ export default async function OrderDetailsPage({
                   label="Email"
                   value={purchase.customerEmail}
                 />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShieldAlert className="h-4 w-4" />
+                Customer Risk
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <Badge variant={riskVariant(customerRisk.level)}>
+                  {customerRisk.label}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {customerPurchases.length} total order
+                  {customerPurchases.length === 1 ? "" : "s"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {customerRisk.description}
+              </p>
+              {customerRisk.shippedCount > 0 && (
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <Badge variant="success">
+                    {customerRisk.deliveredCount} delivered
+                  </Badge>
+                  <Badge variant="destructive">
+                    {customerRisk.failedCount} failed
+                  </Badge>
+                  <Badge variant="secondary">
+                    {customerRisk.shippedCount -
+                      customerRisk.deliveredCount -
+                      customerRisk.failedCount}{" "}
+                    in transit
+                  </Badge>
+                </div>
+              )}
+              {customerPurchases.length > 1 && (
+                <div className="space-y-1 pt-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Recent shipments
+                  </p>
+                  {customerPurchases
+                    .filter((p) => p.courierProvider)
+                    .slice(0, 5)
+                    .map((p) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between gap-2 text-xs"
+                      >
+                        <Link
+                          href={`/admin/purchases/${p.id}`}
+                          className="font-mono hover:underline"
+                        >
+                          #{p.id.slice(-6).toUpperCase()}
+                        </Link>
+                        <span className="capitalize text-muted-foreground">
+                          {p.courierProvider}
+                        </span>
+                        {p.courierStatus && (
+                          <Badge
+                            variant={courierStatusVariant(p.courierStatus)}
+                          >
+                            {formatCourierStatus(p.courierStatus)}
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                </div>
               )}
             </CardContent>
           </Card>

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:merchant.pathao.com)",
+      "WebFetch(domain:docs.steadfast.com.bd)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:portal.packzy.com)",
+      "WebSearch",
+      "Bash(npx prisma:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(npm start:*)"
+    ]
+  }
+}
