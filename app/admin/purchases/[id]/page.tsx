@@ -9,6 +9,7 @@ import {
   MapPin,
   Phone,
   StickyNote,
+  Truck,
   User,
 } from "lucide-react";
 import prisma from "@/lib/prisma";
@@ -22,6 +23,31 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { OrderActions } from "./order-actions";
+import { CourierActions, CourierRefreshButton } from "./courier-actions";
+
+function formatCourierStatus(status: string) {
+  return status
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function courierStatusVariant(status: string) {
+  const s = status.toLowerCase();
+  if (s.includes("delivered") && !s.includes("pending"))
+    return "success" as const;
+  if (s.includes("cancel") || s.includes("returned") || s.includes("hold"))
+    return "destructive" as const;
+  if (
+    s.includes("in_review") ||
+    s.includes("pending") ||
+    s.includes("pickup") ||
+    s.includes("transit") ||
+    s.includes("shipping") ||
+    s.includes("on_delivery")
+  )
+    return "secondary" as const;
+  return "outline" as const;
+}
 
 function statusVariant(status: string) {
   if (status === "approved") return "success" as const;
@@ -75,6 +101,9 @@ export default async function OrderDetailsPage({
         </div>
         {purchase.status === "pending" && (
           <OrderActions purchaseId={purchase.id} />
+        )}
+        {purchase.status === "approved" && !purchase.courierProvider && (
+          <CourierActions purchaseId={purchase.id} />
         )}
       </div>
 
@@ -162,6 +191,67 @@ export default async function OrderDetailsPage({
               />
             </CardContent>
           </Card>
+
+          {purchase.courierProvider && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Truck className="h-4 w-4" />
+                    Courier
+                  </CardTitle>
+                  <CourierRefreshButton purchaseId={purchase.id} />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <Row
+                  icon={Truck}
+                  label="Provider"
+                  value={
+                    purchase.courierProvider === "pathao"
+                      ? "Pathao"
+                      : "Steadfast"
+                  }
+                />
+                {purchase.courierStatus && (
+                  <div className="flex items-start gap-2">
+                    <StickyNote className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <Badge
+                        variant={courierStatusVariant(purchase.courierStatus)}
+                      >
+                        {formatCourierStatus(purchase.courierStatus)}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                {purchase.courierConsignmentId && (
+                  <Row
+                    icon={Hash}
+                    label="Consignment ID"
+                    value={purchase.courierConsignmentId}
+                    mono
+                  />
+                )}
+                {purchase.courierTrackingCode && (
+                  <Row
+                    icon={Hash}
+                    label="Tracking code"
+                    value={purchase.courierTrackingCode}
+                    mono
+                  />
+                )}
+                {purchase.courierSentAt && (
+                  <Row
+                    icon={CalendarDays}
+                    label="Sent at"
+                    value={new Date(purchase.courierSentAt).toLocaleString()}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>

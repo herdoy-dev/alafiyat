@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, Truck, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DataPagination } from "@/components/admin/data-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +53,11 @@ type Purchase = {
   shippingAddress: string;
   shippingCity: string;
   notes: string | null;
+  courierProvider: string | null;
+  courierConsignmentId: string | null;
+  courierTrackingCode: string | null;
+  courierStatus: string | null;
+  courierSentAt: string | null;
   items: PurchaseItem[];
 };
 
@@ -53,6 +66,11 @@ interface PurchasesTableProps {
   loading: boolean;
   onAction: (purchaseId: string, status: "approved" | "rejected") => void;
   processingId: { id: string; action: "approved" | "rejected" } | null;
+  onCourierSend: (
+    purchaseId: string,
+    provider: "pathao" | "steadfast"
+  ) => void;
+  courierProcessingId: string | null;
   filters: { search: string; status: string; method: string };
   onFilterChange: (key: string, value: string) => void;
   total: number;
@@ -78,6 +96,8 @@ export function PurchasesTable({
   loading,
   onAction,
   processingId,
+  onCourierSend,
+  courierProcessingId,
   filters,
   onFilterChange,
   total,
@@ -262,6 +282,56 @@ export function PurchasesTable({
                             Reject
                           </Button>
                         </>
+                      )}
+                      {purchase.status === "approved" &&
+                        !purchase.courierProvider && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                loading={courierProcessingId === purchase.id}
+                                disabled={courierProcessingId === purchase.id}
+                              >
+                                <Truck className="h-4 w-4" />
+                                Courier
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>
+                                Send to courier
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  onCourierSend(purchase.id, "pathao")
+                                }
+                              >
+                                Pathao
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  onCourierSend(purchase.id, "steadfast")
+                                }
+                              >
+                                Steadfast
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      {purchase.courierProvider && (
+                        <div className="flex flex-col items-start gap-1">
+                          <Badge variant="outline" className="capitalize">
+                            <Truck className="h-3 w-3" />
+                            {purchase.courierProvider}
+                          </Badge>
+                          {purchase.courierStatus && (
+                            <Badge variant="secondary" className="capitalize">
+                              {purchase.courierStatus.replace(/_/g, " ")}
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </div>
                   </TableCell>

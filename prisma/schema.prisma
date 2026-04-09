@@ -84,6 +84,11 @@ model Purchase {
   shippingAddress String
   shippingCity    String
   notes           String?
+  courierProvider      String?
+  courierConsignmentId String?
+  courierTrackingCode  String?
+  courierStatus        String?
+  courierSentAt        DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   items           PurchaseItem[]

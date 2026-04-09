@@ -27,6 +27,11 @@ type Purchase = {
   shippingAddress: string;
   shippingCity: string;
   notes: string | null;
+  courierProvider: string | null;
+  courierConsignmentId: string | null;
+  courierTrackingCode: string | null;
+  courierStatus: string | null;
+  courierSentAt: string | null;
   items: PurchaseItem[];
 };
 
@@ -126,6 +131,37 @@ function PurchasesContent() {
   }
 
   const [processingId, setProcessingId] = useState<{ id: string; action: "approved" | "rejected" } | null>(null);
+  const [courierProcessingId, setCourierProcessingId] = useState<string | null>(null);
+
+  async function handleCourierSend(
+    purchaseId: string,
+    provider: "pathao" | "steadfast"
+  ) {
+    setCourierProcessingId(purchaseId);
+    try {
+      const res = await fetch(
+        `/api/admin/purchases/${purchaseId}/courier`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ provider }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setPurchases((prev) =>
+        prev.map((p) => (p.id === purchaseId ? data.purchase : p))
+      );
+      toast.success(
+        `Sent to ${provider === "pathao" ? "Pathao" : "Steadfast"}`
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send to courier");
+    } finally {
+      setCourierProcessingId(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -146,6 +182,8 @@ function PurchasesContent() {
             loading={loading}
             onAction={handleAction}
             processingId={processingId}
+            onCourierSend={handleCourierSend}
+            courierProcessingId={courierProcessingId}
             filters={filters}
             onFilterChange={handleFilterChange}
             total={total}
