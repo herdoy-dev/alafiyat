@@ -50,9 +50,29 @@ model Product {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   purchaseItems PurchaseItem[]
+  landings      Landing[]
 
   @@index([slug])
   @@index([categoryId])
+}
+
+model Landing {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  template  String
+  status    String   @default("draft")
+  videoUrl  String?
+  content   Json
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([productId])
+  @@index([status])
 }
 
 model Customer {

@@ -11,7 +11,13 @@
       "Bash(npm run:*)",
       "Bash(npm start:*)",
       "Bash(netstat -ano)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(mkdir -p \"app/\\(landings\\)/l/[slug]\")",
+      "Bash(mv \"app/\\(shop\\)/l/[slug]/landing-tracker.tsx\" \"app/\\(landings\\)/l/[slug]/landing-tracker.tsx\")",
+      "Bash(rmdir \"app/\\(shop\\)/l/[slug]\")",
+      "Bash(rmdir \"app/\\(shop\\)/l\")",
+      "Bash(npx tsx:*)",
+      "Bash(rm:*)"
     ]
   }
 }

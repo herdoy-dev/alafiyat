@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn, getInitials } from "@/lib/utils";
 import {
   LayoutDashboard,
+  LayoutTemplate,
   ShoppingCart,
   Package,
   Tag,
@@ -40,6 +41,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Products", href: "/admin/products", icon: Package },
       { label: "Categories", href: "/admin/categories", icon: Tag },
+      { label: "Landings", href: "/admin/landings", icon: LayoutTemplate },
     ],
   },
   {
