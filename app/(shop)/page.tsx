@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/storefront/product-card";
@@ -60,18 +61,25 @@ export default async function HomePage() {
       {heroProducts.length > 0 ? (
         <HeroSlider products={heroProducts} />
       ) : (
-        <section className="border-b bg-gradient-to-b from-primary/5 to-background">
-          <div className="container mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-24">
-            <div className="max-w-2xl space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                Shop the latest products
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Curated quality goods, delivered to your door. Pay easily with
-                bKash, Nagad, Rocket, or Upay.
+        <section className="border-b border-border/60 bg-gradient-to-b from-primary/[0.04] to-background">
+          <div className="container mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-32">
+            <div className="max-w-2xl space-y-5">
+              <p className="font-display text-sm italic text-muted-foreground">
+                Welcome to Al Amirat
               </p>
-              <Button size="lg" asChild>
-                <Link href="/products">Browse all products</Link>
+              <h1 className="font-display text-5xl leading-[0.95] tracking-tight md:text-7xl">
+                Quality goods,{" "}
+                <em className="font-display italic">delivered.</em>
+              </h1>
+              <p className="text-base text-muted-foreground md:text-lg">
+                Curated essentials, paid easily with bKash, Nagad, Rocket, Upay
+                — or cash on delivery.
+              </p>
+              <Button size="lg" asChild className="rounded-full">
+                <Link href="/products">
+                  Browse all products
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </div>
@@ -79,13 +87,27 @@ export default async function HomePage() {
       )}
 
       {/* Categories */}
-      <CategorySlider categories={categories} />
+      {categories.length > 0 && (
+        <section className="container mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <SectionHeader
+            eyebrow="Shop by category"
+            title="Pick your aisle"
+          />
+          <div className="mt-6">
+            <CategorySlider categories={categories} />
+          </div>
+        </section>
+      )}
 
       {/* Featured */}
       {featured.length > 0 && (
-        <section className="container mx-auto max-w-6xl px-4 py-12 md:px-8">
-          <h2 className="mb-6 text-2xl font-bold tracking-tight">Featured</h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <section className="container mx-auto max-w-6xl border-t border-border/40 px-4 py-12 md:px-8 md:py-16">
+          <SectionHeader
+            eyebrow="Hand-picked"
+            title="Featured this week"
+            href="/products"
+          />
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
             {featured.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -94,23 +116,53 @@ export default async function HomePage() {
       )}
 
       {/* Latest */}
-      <section className="container mx-auto max-w-6xl px-4 py-12 md:px-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">New arrivals</h2>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/products">View all</Link>
-          </Button>
-        </div>
+      <section className="container mx-auto max-w-6xl border-t border-border/40 px-4 py-12 md:px-8 md:py-16">
+        <SectionHeader
+          eyebrow="Just landed"
+          title="New arrivals"
+          href="/products"
+        />
         {latest.length === 0 ? (
-          <p className="text-muted-foreground">No products yet.</p>
+          <p className="mt-6 text-muted-foreground">No products yet.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
             {latest.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function SectionHeader({
+  eyebrow,
+  title,
+  href,
+}: {
+  eyebrow: string;
+  title: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p className="font-display text-sm italic text-muted-foreground">
+          {eyebrow}
+        </p>
+        <h2 className="mt-1 font-display text-3xl leading-none tracking-tight md:text-4xl">
+          {title}
+        </h2>
+      </div>
+      {href && (
+        <Button variant="ghost" size="sm" asChild className="group">
+          <Link href={href}>
+            View all
+            <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

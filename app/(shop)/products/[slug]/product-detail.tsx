@@ -7,15 +7,12 @@ import { toast } from "sonner";
 import {
   Minus,
   Plus,
-  ShoppingCart,
+  ShoppingBag,
   CheckCircle2,
   XCircle,
-  Tag,
-  Package,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/stores/cart";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +46,10 @@ export function ProductDetail({ product }: { product: Product }) {
     const rect = el.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setOrigin({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
+    setOrigin({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    });
   }
 
   function handleAdd() {
@@ -68,21 +68,23 @@ export function ProductDetail({ product }: { product: Product }) {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-12">
+    <div className="container mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-14">
+      {/* Breadcrumb */}
       <Link
         href="/products"
-        className="mb-6 inline-block text-sm text-muted-foreground hover:text-foreground"
+        className="group mb-8 inline-flex items-center gap-2 font-display text-sm italic text-muted-foreground transition-colors hover:text-foreground"
       >
-        ← Back to products
+        <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+        Back to all products
       </Link>
 
       {/* Top: gallery + buy panel */}
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="grid gap-10 md:gap-12 lg:grid-cols-12 lg:gap-16">
         {/* Gallery */}
-        <div className="mx-auto w-full max-w-md space-y-4">
+        <div className="lg:col-span-7">
           <div
             ref={imageRef}
-            className="relative aspect-square cursor-zoom-in overflow-hidden rounded-xl border bg-muted"
+            className="relative aspect-square cursor-zoom-in overflow-hidden rounded-3xl border border-border/60 bg-muted shadow-sm"
             onMouseEnter={() => setZoomed(true)}
             onMouseLeave={() => setZoomed(false)}
             onMouseMove={handleMouseMove}
@@ -103,17 +105,17 @@ export function ProductDetail({ product }: { product: Product }) {
             )}
           </div>
           {gallery.length > 1 && (
-            <div className="grid grid-cols-5 gap-3">
+            <div className="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
               {gallery.map((src) => (
                 <button
                   key={src}
                   type="button"
                   onClick={() => setActiveImage(src)}
                   className={cn(
-                    "relative aspect-square overflow-hidden rounded-md border bg-muted transition",
+                    "relative aspect-square h-20 w-20 shrink-0 overflow-hidden rounded-xl border bg-muted transition-all md:h-24 md:w-24",
                     activeImage === src
-                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                      : "opacity-70 hover:opacity-100"
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border/60 opacity-60 hover:opacity-100"
                   )}
                 >
                   <Image
@@ -130,41 +132,46 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
 
         {/* Buy panel */}
-        <div>
-          <div className="lg:sticky lg:top-20 space-y-6">
+        <div className="lg:col-span-5">
+          <div className="space-y-7 lg:sticky lg:top-24">
+            {/* Title block */}
             <div className="space-y-3">
               {product.category && (
-                <Badge variant="secondary" className="uppercase tracking-wide">
-                  {product.category.name}
-                </Badge>
+                <p className="font-display text-sm italic text-muted-foreground">
+                  In{" "}
+                  <Link
+                    href={`/products?category=${product.category.slug}`}
+                    className="text-foreground underline decoration-primary/40 underline-offset-4 hover:text-primary"
+                  >
+                    {product.category.name}
+                  </Link>
+                </p>
               )}
-              <h1 className="text-3xl font-bold leading-tight md:text-4xl">
+              <h1 className="font-display text-4xl leading-[1.05] tracking-tight md:text-5xl">
                 {product.name}
               </h1>
-              <p className="text-3xl font-bold text-primary">
+              <p className="font-display text-3xl tracking-tight tabular-nums text-foreground md:text-4xl">
                 ৳{product.price.toLocaleString()}
               </p>
             </div>
 
-            <Separator />
+            <div className="h-px w-full bg-border/60" />
 
             {/* Stock status */}
             <div className="flex items-center gap-2 text-sm">
               {inStock ? (
                 <>
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="font-medium text-green-600 dark:text-green-400">
-                    In stock
-                  </span>
-                  <span className="text-muted-foreground">
-                    ({product.stock} available)
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-foreground">In stock</span>
+                  <span className="text-muted-foreground tabular-nums">
+                    · {product.stock} available
                   </span>
                 </>
               ) : (
                 <>
                   <XCircle className="h-4 w-4 text-destructive" />
                   <span className="font-medium text-destructive">
-                    Out of stock
+                    Currently out of stock
                   </span>
                 </>
               )}
@@ -172,27 +179,29 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Quantity + add to cart */}
             {inStock && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium">Quantity</span>
-                  <div className="flex items-center rounded-md border">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <span className="font-display text-xs italic uppercase tracking-[0.2em] text-muted-foreground">
+                    Quantity
+                  </span>
+                  <div className="flex items-center rounded-full border border-border/70">
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10"
+                      className="h-10 w-10 rounded-full"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-12 text-center text-sm font-medium">
+                    <span className="w-10 text-center font-display text-base tabular-nums">
                       {quantity}
                     </span>
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10"
+                      className="h-10 w-10 rounded-full"
                       onClick={() =>
                         setQuantity((q) => Math.min(product.stock, q + 1))
                       }
@@ -201,46 +210,53 @@ export function ProductDetail({ product }: { product: Product }) {
                     </Button>
                   </div>
                 </div>
-                <Button onClick={handleAdd} className="w-full" size="lg">
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to cart
+                <Button
+                  onClick={handleAdd}
+                  className="w-full rounded-full"
+                  size="lg"
+                >
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Add to cart · ৳
+                  {(product.price * quantity).toLocaleString()}
                 </Button>
               </div>
             )}
 
-            <Separator />
+            <div className="h-px w-full bg-border/60" />
 
             {/* Quick details */}
-            <dl className="space-y-3 text-sm">
-              {product.category && (
-                <div className="flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
-                  <dt className="text-muted-foreground">Category</dt>
-                  <dd className="ml-auto font-medium">
-                    {product.category.name}
-                  </dd>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <dt className="text-muted-foreground">SKU</dt>
-                <dd className="ml-auto font-mono text-xs">
+            <dl className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <dt className="font-display text-[11px] italic uppercase tracking-[0.18em] text-muted-foreground">
+                  SKU
+                </dt>
+                <dd className="mt-1 font-mono text-xs">
                   {product.id.slice(-8).toUpperCase()}
                 </dd>
               </div>
+              {product.category && (
+                <div>
+                  <dt className="font-display text-[11px] italic uppercase tracking-[0.18em] text-muted-foreground">
+                    Category
+                  </dt>
+                  <dd className="mt-1 font-medium">{product.category.name}</dd>
+                </div>
+              )}
             </dl>
           </div>
         </div>
       </div>
 
       {/* Bottom: description */}
-      <div className="mt-16">
-        <h2 className="mb-6 text-2xl font-bold tracking-tight">
-          Product Description
+      <div className="mt-16 border-t border-border/60 pt-12 md:mt-24 md:pt-16">
+        <p className="font-display text-sm italic text-muted-foreground">
+          About this product
+        </p>
+        <h2 className="mt-1 font-display text-3xl leading-tight tracking-tight md:text-4xl">
+          The full story
         </h2>
-        <Separator className="mb-6" />
         <div
-          className="rich-content max-w-3xl"
+          className="rich-content mt-6 max-w-3xl"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       </div>
