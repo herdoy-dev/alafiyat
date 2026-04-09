@@ -24,12 +24,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   EMPTY_SOCIAL,
   EMPTY_COURIER_CONFIG,
+  EMPTY_MARKETING,
   HERO_MAX,
   SOCIAL_KEYS,
   SOCIAL_LABELS,
   type SocialKey,
   type SocialLinks,
   type CourierConfig,
+  type MarketingConfig,
 } from "@/lib/settings";
 
 const ICONS: Record<SocialKey, React.ComponentType<{ className?: string }>> = {
@@ -65,9 +67,14 @@ export default function AdminSettingsPage() {
   const [heroIds, setHeroIds] = useState<string[]>([]);
   const [courier, setCourier] =
     useState<CourierConfig>(EMPTY_COURIER_CONFIG);
+  const [marketing, setMarketing] =
+    useState<MarketingConfig>(EMPTY_MARKETING);
   const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingSection, setSavingSection] = useState<
+    "marketing" | "steadfast" | "pathao" | null
+  >(null);
 
   useEffect(() => {
     async function load() {
@@ -81,6 +88,7 @@ export default function AdminSettingsPage() {
           setSocial(data.social);
           setHeroIds(data.heroProductIds ?? []);
           if (data.courier) setCourier(data.courier);
+          if (data.marketing) setMarketing(data.marketing);
         }
         if (productsRes.ok) {
           const data = await productsRes.json();
@@ -105,7 +113,6 @@ export default function AdminSettingsPage() {
         body: JSON.stringify({
           social,
           heroProductIds: heroIds,
-          courier,
         }),
       });
       const data = await res.json();
@@ -115,10 +122,86 @@ export default function AdminSettingsPage() {
       }
       setSocial(data.social);
       setHeroIds(data.heroProductIds ?? []);
-      if (data.courier) setCourier(data.courier);
       toast.success("Settings saved");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function patchSettings(
+    body: Record<string, unknown>,
+    successMessage: string
+  ) {
+    const res = await fetch("/api/admin/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast.error(data.error || "Failed to save");
+      return null;
+    }
+    toast.success(successMessage);
+    return data;
+  }
+
+  async function saveMarketing() {
+    setSavingSection("marketing");
+    try {
+      const data = await patchSettings(
+        { marketing },
+        "Marketing settings saved"
+      );
+      if (data?.marketing) setMarketing(data.marketing);
+    } finally {
+      setSavingSection(null);
+    }
+  }
+
+  async function saveSteadfast() {
+    setSavingSection("steadfast");
+    try {
+      const data = await patchSettings(
+        {
+          courier: {
+            courier_steadfast_base_url: courier.courier_steadfast_base_url,
+            courier_steadfast_api_key: courier.courier_steadfast_api_key,
+            courier_steadfast_api_secret:
+              courier.courier_steadfast_api_secret,
+          },
+        },
+        "Steadfast settings saved"
+      );
+      if (data?.courier) setCourier(data.courier);
+    } finally {
+      setSavingSection(null);
+    }
+  }
+
+  async function savePathao() {
+    setSavingSection("pathao");
+    try {
+      const data = await patchSettings(
+        {
+          courier: {
+            courier_pathao_base_url: courier.courier_pathao_base_url,
+            courier_pathao_client_id: courier.courier_pathao_client_id,
+            courier_pathao_client_secret:
+              courier.courier_pathao_client_secret,
+            courier_pathao_username: courier.courier_pathao_username,
+            courier_pathao_password: courier.courier_pathao_password,
+            courier_pathao_store_id: courier.courier_pathao_store_id,
+            courier_pathao_city_id: courier.courier_pathao_city_id,
+            courier_pathao_zone_id: courier.courier_pathao_zone_id,
+            courier_pathao_area_id: courier.courier_pathao_area_id,
+          },
+        },
+        "Pathao settings saved"
+      );
+      if (data?.courier) setCourier(data.courier);
+    } finally {
+      setSavingSection(null);
     }
   }
 
@@ -161,7 +244,7 @@ export default function AdminSettingsPage() {
           </p>
         </div>
         <Button type="submit" disabled={saving || loading}>
-          {saving ? "Saving..." : "Save changes"}
+          {saving ? "Saving..." : "Save hero & social"}
         </Button>
       </div>
 
@@ -309,6 +392,71 @@ export default function AdminSettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Marketing */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Marketing</CardTitle>
+            {!loading && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  marketing.marketing_facebook_pixel_id
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {marketing.marketing_facebook_pixel_id
+                  ? "Pixel active"
+                  : "Pixel inactive"}
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Connect Meta (Facebook / Instagram) ad tracking. Once a Pixel ID
+            is saved, the Facebook Pixel script loads on every storefront
+            page and a PageView event fires automatically.
+          </p>
+          {loading ? (
+            <Skeleton className="h-10 w-full" />
+          ) : (
+            <div className="space-y-1">
+              <Label htmlFor="fb-pixel-id">Facebook Pixel ID</Label>
+              <Input
+                id="fb-pixel-id"
+                placeholder="e.g. 1234567890123456"
+                inputMode="numeric"
+                value={marketing.marketing_facebook_pixel_id}
+                onChange={(e) =>
+                  setMarketing({
+                    ...marketing,
+                    marketing_facebook_pixel_id: e.target.value,
+                  })
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Find this in Meta Events Manager → Data sources → your
+                pixel. Leave blank to disable tracking.
+              </p>
+            </div>
+          )}
+          {!loading && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={saveMarketing}
+                disabled={savingSection !== null}
+              >
+                {savingSection === "marketing"
+                  ? "Saving..."
+                  : "Save marketing"}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Steadfast */}
       <Card>
         <CardHeader>
@@ -388,6 +536,19 @@ export default function AdminSettingsPage() {
                   }
                 />
               </div>
+            </div>
+          )}
+          {!loading && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={saveSteadfast}
+                disabled={savingSection !== null}
+              >
+                {savingSection === "steadfast"
+                  ? "Saving..."
+                  : "Save Steadfast"}
+              </Button>
             </div>
           )}
         </CardContent>
@@ -558,6 +719,17 @@ export default function AdminSettingsPage() {
                   }
                 />
               </div>
+            </div>
+          )}
+          {!loading && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={savePathao}
+                disabled={savingSection !== null}
+              >
+                {savingSection === "pathao" ? "Saving..." : "Save Pathao"}
+              </Button>
             </div>
           )}
         </CardContent>

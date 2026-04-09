@@ -8,9 +8,13 @@ import {
   HERO_MAX,
   COURIER_KEYS,
   EMPTY_COURIER_CONFIG,
+  MARKETING_KEYS,
+  EMPTY_MARKETING,
   type SocialLinks,
   type CourierConfig,
   type CourierKey,
+  type MarketingConfig,
+  type MarketingKey,
 } from "@/lib/settings";
 import { invalidatePathaoTokenCache } from "@/services/courier/pathao";
 
@@ -47,10 +51,29 @@ function buildCourierMap(
   return map;
 }
 
+function buildMarketingMap(
+  rows: { key: string; value: string }[]
+): MarketingConfig {
+  const map: MarketingConfig = { ...EMPTY_MARKETING };
+  for (const row of rows) {
+    if ((MARKETING_KEYS as readonly string[]).includes(row.key)) {
+      map[row.key as MarketingKey] = row.value;
+    }
+  }
+  return map;
+}
+
 async function readSettings() {
   const rows = await prisma.siteSetting.findMany({
     where: {
-      key: { in: [...SOCIAL_KEYS, HERO_PRODUCTS_KEY, ...COURIER_KEYS] },
+      key: {
+        in: [
+          ...SOCIAL_KEYS,
+          HERO_PRODUCTS_KEY,
+          ...COURIER_KEYS,
+          ...MARKETING_KEYS,
+        ],
+      },
     },
   });
   const heroRow = rows.find((r) => r.key === HERO_PRODUCTS_KEY);
@@ -58,6 +81,7 @@ async function readSettings() {
     social: buildSocialMap(rows),
     heroProductIds: parseHero(heroRow?.value),
     courier: buildCourierMap(rows),
+    marketing: buildMarketingMap(rows),
   };
 }
 
@@ -87,6 +111,7 @@ export async function PATCH(request: Request) {
     const social = body?.social as Record<string, unknown> | undefined;
     const heroProductIds = body?.heroProductIds as unknown;
     const courier = body?.courier as Record<string, unknown> | undefined;
+    const marketing = body?.marketing as Record<string, unknown> | undefined;
 
     const ops = [] as ReturnType<typeof prisma.siteSetting.upsert>[];
     let courierTouched = false;
@@ -113,6 +138,21 @@ export async function PATCH(request: Request) {
         const value = typeof raw === "string" ? raw.trim() : "";
         courierTouched = true;
         if (key.startsWith("courier_pathao_")) pathaoTouched = true;
+        ops.push(
+          prisma.siteSetting.upsert({
+            where: { key },
+            create: { key, value },
+            update: { value },
+          })
+        );
+      }
+    }
+
+    if (marketing && typeof marketing === "object") {
+      for (const key of MARKETING_KEYS) {
+        const raw = (marketing as Record<string, unknown>)[key];
+        if (raw === undefined) continue;
+        const value = typeof raw === "string" ? raw.trim() : "";
         ops.push(
           prisma.siteSetting.upsert({
             where: { key },

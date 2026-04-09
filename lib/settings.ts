@@ -73,3 +73,15 @@ export const COURIER_DEFAULTS: Partial<CourierConfig> = {
   courier_steadfast_base_url: "https://portal.packzy.com/api/v1",
   courier_pathao_base_url: "https://api-hermes.pathao.com",
 };
+
+export const MARKETING_KEYS = [
+  "marketing_facebook_pixel_id",
+] as const;
+
+export type MarketingKey = (typeof MARKETING_KEYS)[number];
+
+export type MarketingConfig = Record<MarketingKey, string>;
+
+export const EMPTY_MARKETING: MarketingConfig = {
+  marketing_facebook_pixel_id: "",
+};
