@@ -39,8 +39,25 @@ export const purchaseSchema = z
 
 export const updatePurchaseSchema = z.object({
   purchaseId: z.string().min(1, "Purchase ID is required"),
-  status: z.enum(["approved", "rejected"]),
+  status: z.enum(["approved", "rejected", "pending"]),
+});
+
+export const editPurchaseItemSchema = z.object({
+  productId: z.string().min(1, "Product is required"),
+  productName: z.string().min(1, "Product name is required"),
+  price: z.number().int().nonnegative("Price must be 0 or more"),
+  quantity: z.number().int().positive("Quantity must be at least 1"),
+});
+
+export const editPurchaseSchema = z.object({
+  shippingName: z.string().min(1, "Name is required"),
+  shippingPhone: z.string().min(1, "Phone is required"),
+  shippingAddress: z.string().min(1, "Address is required"),
+  shippingCity: z.string().min(1, "City is required"),
+  notes: z.string().optional().nullable(),
+  items: z.array(editPurchaseItemSchema).min(1, "Order must have at least one item"),
 });
 
 export type PurchaseInput = z.infer<typeof purchaseSchema>;
 export type UpdatePurchaseInput = z.infer<typeof updatePurchaseSchema>;
+export type EditPurchaseInput = z.infer<typeof editPurchaseSchema>;

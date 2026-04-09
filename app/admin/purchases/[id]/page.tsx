@@ -25,6 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { OrderActions } from "./order-actions";
 import { CourierActions, CourierRefreshButton } from "./courier-actions";
+import { EditOrderDialog } from "./edit-order-dialog";
 import {
   computeCustomerRisk,
   formatCourierStatus,
@@ -117,12 +118,17 @@ export default async function OrderDetailsPage({
             </p>
           </div>
         </div>
-        {purchase.status === "pending" && (
-          <OrderActions purchaseId={purchase.id} />
-        )}
-        {purchase.status === "approved" && !purchase.courierProvider && (
-          <CourierActions purchaseId={purchase.id} />
-        )}
+        <div className="flex flex-wrap gap-2">
+          {!purchase.courierProvider && purchase.status !== "rejected" && (
+            <EditOrderDialog purchase={purchase} />
+          )}
+          {purchase.status === "pending" && (
+            <OrderActions purchaseId={purchase.id} />
+          )}
+          {purchase.status === "approved" && !purchase.courierProvider && (
+            <CourierActions purchaseId={purchase.id} />
+          )}
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

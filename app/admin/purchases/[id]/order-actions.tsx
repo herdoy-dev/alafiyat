@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
+type Status = "approved" | "rejected" | "pending";
+
 export function OrderActions({ purchaseId }: { purchaseId: string }) {
   const router = useRouter();
-  const [pending, setPending] = useState<"approved" | "rejected" | null>(null);
+  const [pending, setPending] = useState<Status | null>(null);
 
-  async function handle(status: "approved" | "rejected") {
+  async function handle(status: Status) {
     setPending(status);
     try {
       const res = await fetch("/api/admin/purchases", {
@@ -23,7 +25,11 @@ export function OrderActions({ purchaseId }: { purchaseId: string }) {
         return;
       }
       toast.success(
-        status === "approved" ? "Order approved" : "Order rejected"
+        status === "approved"
+          ? "Order approved"
+          : status === "rejected"
+            ? "Order rejected"
+            : "Order reopened"
       );
       router.refresh();
     } finally {
@@ -52,3 +58,4 @@ export function OrderActions({ purchaseId }: { purchaseId: string }) {
     </div>
   );
 }
+

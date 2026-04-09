@@ -104,7 +104,7 @@ function PurchasesContent() {
 
   async function handleAction(
     purchaseId: string,
-    status: "approved" | "rejected"
+    status: "approved" | "rejected" | "pending"
   ) {
     setProcessingId({ id: purchaseId, action: status });
     try {
@@ -121,7 +121,11 @@ function PurchasesContent() {
         prev.map((p) => (p.id === purchaseId ? data.purchase : p))
       );
       toast.success(
-        `Purchase ${status === "approved" ? "approved" : "rejected"}`
+        status === "approved"
+          ? "Purchase approved"
+          : status === "rejected"
+            ? "Purchase rejected"
+            : "Purchase reopened"
       );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
@@ -130,7 +134,10 @@ function PurchasesContent() {
     }
   }
 
-  const [processingId, setProcessingId] = useState<{ id: string; action: "approved" | "rejected" } | null>(null);
+  const [processingId, setProcessingId] = useState<{
+    id: string;
+    action: "approved" | "rejected" | "pending";
+  } | null>(null);
   const [courierProcessingId, setCourierProcessingId] = useState<string | null>(null);
 
   async function handleCourierSend(

@@ -9,7 +9,9 @@
       "Bash(npx prisma:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run:*)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)"
     ]
   }
 }

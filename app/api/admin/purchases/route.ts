@@ -3,7 +3,12 @@ import prisma from "@/lib/prisma";
 import { getAdminUser } from "@/lib/auth";
 import { updatePurchaseSchema } from "@/schemas/purchase";
 import { validationError } from "@/lib/api-utils";
-import { approvePurchase, rejectPurchase } from "@/services/purchases";
+import {
+  approvePurchase,
+  rejectPurchase,
+  reopenPurchase,
+  unapprovePurchase,
+} from "@/services/purchases";
 
 export async function GET(request: Request) {
   try {
@@ -70,9 +75,41 @@ export async function PATCH(request: Request) {
 
     const { purchaseId, status } = parsed.data;
 
-    const updated = status === "approved"
-      ? await approvePurchase(purchaseId)
-      : await rejectPurchase(purchaseId);
+    const current = await prisma.purchase.findUnique({
+      where: { id: purchaseId },
+      select: { status: true, courierProvider: true },
+    });
+    if (!current) throw new Error("Purchase not found");
+    if (current.courierProvider) {
+      throw new Error("Cannot change status after sending to courier");
+    }
+
+    let updated;
+    if (status === current.status) {
+      updated = await prisma.purchase.findUnique({
+        where: { id: purchaseId },
+        include: { items: true },
+      });
+    } else if (status === "approved") {
+      // pending → approved, or rejected → pending → approved
+      if (current.status === "rejected") {
+        await reopenPurchase(purchaseId);
+      }
+      updated = await approvePurchase(purchaseId);
+    } else if (status === "rejected") {
+      // pending → rejected, or approved → pending → rejected
+      if (current.status === "approved") {
+        await unapprovePurchase(purchaseId);
+      }
+      updated = await rejectPurchase(purchaseId);
+    } else {
+      // status === "pending"
+      if (current.status === "approved") {
+        updated = await unapprovePurchase(purchaseId);
+      } else {
+        updated = await reopenPurchase(purchaseId);
+      }
+    }
 
     return NextResponse.json({ purchase: updated });
   } catch (error) {
@@ -80,7 +117,12 @@ export async function PATCH(request: Request) {
     if (message === "Purchase not found") {
       return NextResponse.json({ error: message }, { status: 404 });
     }
-    if (message === "Purchase already processed") {
+    if (
+      message === "Purchase already processed" ||
+      message === "Only rejected orders can be reopened" ||
+      message === "Only approved orders can be reverted" ||
+      message === "Cannot change status after sending to courier"
+    ) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
     return NextResponse.json(

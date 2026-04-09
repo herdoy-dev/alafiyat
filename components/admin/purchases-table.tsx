@@ -64,8 +64,14 @@ type Purchase = {
 interface PurchasesTableProps {
   purchases: Purchase[];
   loading: boolean;
-  onAction: (purchaseId: string, status: "approved" | "rejected") => void;
-  processingId: { id: string; action: "approved" | "rejected" } | null;
+  onAction: (
+    purchaseId: string,
+    status: "approved" | "rejected" | "pending"
+  ) => void;
+  processingId: {
+    id: string;
+    action: "approved" | "rejected" | "pending";
+  } | null;
   onCourierSend: (
     purchaseId: string,
     provider: "pathao" | "steadfast"
@@ -89,6 +95,42 @@ function StatusBadge({ status }: { status: string }) {
         : "secondary";
 
   return <Badge variant={variant}>{status}</Badge>;
+}
+
+type StatusValue = "pending" | "approved" | "rejected";
+
+function StatusSelect({
+  purchase,
+  onAction,
+  processing,
+}: {
+  purchase: Purchase;
+  onAction: (id: string, status: StatusValue) => void;
+  processing: StatusValue | null;
+}) {
+  // Once dispatched to courier, status is locked.
+  if (purchase.courierProvider) {
+    return <StatusBadge status={purchase.status} />;
+  }
+
+  return (
+    <Select
+      value={purchase.status}
+      disabled={processing !== null}
+      onValueChange={(v) => {
+        if (v !== purchase.status) onAction(purchase.id, v as StatusValue);
+      }}
+    >
+      <SelectTrigger className="h-8 w-32 capitalize">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="pending">Pending</SelectItem>
+        <SelectItem value="approved">Approved</SelectItem>
+        <SelectItem value="rejected">Rejected</SelectItem>
+      </SelectContent>
+    </Select>
+  );
 }
 
 export function PurchasesTable({
@@ -237,7 +279,15 @@ export function PurchasesTable({
                     {purchase.transactionId}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={purchase.status} />
+                    <StatusSelect
+                      purchase={purchase}
+                      onAction={onAction}
+                      processing={
+                        processingId?.id === purchase.id
+                          ? processingId.action
+                          : null
+                      }
+                    />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {new Date(purchase.createdAt).toLocaleDateString()}
