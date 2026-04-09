@@ -19,15 +19,51 @@ import {
   LogOut,
 } from "lucide-react";
 
-const navItems = [
-  { label: "Home", href: "/admin", icon: LayoutDashboard },
-  { label: "Products", href: "/admin/products", icon: Package },
-  { label: "Categories", href: "/admin/categories", icon: Tag },
-  { label: "Orders", href: "/admin/purchases", icon: ShoppingCart },
-  { label: "Customers", href: "/admin/customers", icon: UserRound },
-  { label: "Admins", href: "/admin/users", icon: Users },
-  { label: "Complaints", href: "/admin/complaints", icon: MessageSquareWarning },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { label: "Products", href: "/admin/products", icon: Package },
+      { label: "Categories", href: "/admin/categories", icon: Tag },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { label: "Orders", href: "/admin/purchases", icon: ShoppingCart },
+      { label: "Customers", href: "/admin/customers", icon: UserRound },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { label: "Admins", href: "/admin/users", icon: Users },
+      {
+        label: "Complaints",
+        href: "/admin/complaints",
+        icon: MessageSquareWarning,
+      },
+    ],
+  },
+  {
+    label: "System",
+    items: [{ label: "Settings", href: "/admin/settings", icon: Settings }],
+  },
 ];
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -41,7 +77,8 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-4">
+      {/* Brand */}
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-5">
         <Image
           src="/logo.png"
           alt="Al Amirat"
@@ -49,34 +86,67 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
           height={32}
           className="h-7 w-auto"
         />
+        <span className="ml-auto rounded-full border border-sidebar-border bg-sidebar-accent/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-sidebar-foreground/60">
+          Admin
+        </span>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              isActive(item.href)
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </Link>
+      {/* Nav groups */}
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+        {navGroups.map((group) => (
+          <div key={group.label} className="space-y-1">
+            <p className="px-3 pb-1 font-display text-[11px] italic tracking-wide text-sidebar-foreground/40">
+              {group.label}
+            </p>
+            {group.items.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                    active
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  {/* Active rail */}
+                  <span
+                    className={cn(
+                      "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary transition-opacity",
+                      active ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <item.icon
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-colors",
+                      active
+                        ? "text-primary"
+                        : "text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground"
+                    )}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         ))}
       </nav>
 
+      {/* User card */}
       <div className="border-t border-sidebar-border p-3">
-        <div className="flex items-center gap-3 rounded-md px-3 py-2">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs">{getInitials(user?.name)}</AvatarFallback>
+        <div className="flex items-center gap-3 rounded-md px-2 py-2">
+          <Avatar className="h-9 w-9 ring-2 ring-sidebar-accent/30">
+            <AvatarFallback className="bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">
+              {getInitials(user?.name)}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex-1 truncate">
-            <p className="truncate text-sm font-medium">{user?.name}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold leading-tight">
+              {user?.name}
+            </p>
             <p className="truncate text-xs text-sidebar-foreground/60">
               {user?.email}
             </p>
@@ -84,8 +154,9 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+            className="h-8 w-8 shrink-0 text-sidebar-foreground/60 hover:bg-destructive/10 hover:text-destructive"
             onClick={logout}
+            title="Sign out"
           >
             <LogOut className="h-4 w-4" />
           </Button>
