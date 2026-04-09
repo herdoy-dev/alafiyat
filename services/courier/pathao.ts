@@ -1,21 +1,46 @@
-const PATHAO_BASE_URL =
-  process.env.PATHAO_BASE_URL || "https://api-hermes.pathao.com";
+import { getCourierConfig } from "@/lib/courier-config";
 
-type CachedToken = { token: string; expiresAt: number };
+type CachedToken = {
+  token: string;
+  expiresAt: number;
+  signature: string;
+};
 let cachedToken: CachedToken | null = null;
 
-async function getPathaoAccessToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
-    return cachedToken.token;
-  }
+export function invalidatePathaoTokenCache() {
+  cachedToken = null;
+}
 
-  const clientId = process.env.PATHAO_CLIENT_ID;
-  const clientSecret = process.env.PATHAO_CLIENT_SECRET;
-  const username = process.env.PATHAO_USERNAME;
-  const password = process.env.PATHAO_PASSWORD;
+function buildSignature(parts: string[]): string {
+  return parts.join("|");
+}
+
+async function getPathaoAccessToken(): Promise<string> {
+  const config = await getCourierConfig();
+  const baseUrl = config.courier_pathao_base_url;
+  const clientId = config.courier_pathao_client_id;
+  const clientSecret = config.courier_pathao_client_secret;
+  const username = config.courier_pathao_username;
+  const password = config.courier_pathao_password;
 
   if (!clientId || !clientSecret) {
     throw new Error("Pathao credentials are not configured");
+  }
+
+  const signature = buildSignature([
+    baseUrl,
+    clientId,
+    clientSecret,
+    username,
+    password,
+  ]);
+
+  if (
+    cachedToken &&
+    cachedToken.signature === signature &&
+    cachedToken.expiresAt > Date.now() + 60_000
+  ) {
+    return cachedToken.token;
   }
 
   // Pathao supports two grants. Prefer password grant if username/password
@@ -32,7 +57,7 @@ async function getPathaoAccessToken(): Promise<string> {
     body.grant_type = "client_credentials";
   }
 
-  const res = await fetch(`${PATHAO_BASE_URL}/aladdin/api/v1/issue-token`, {
+  const res = await fetch(`${baseUrl}/aladdin/api/v1/issue-token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -52,6 +77,7 @@ async function getPathaoAccessToken(): Promise<string> {
   cachedToken = {
     token: data.access_token as string,
     expiresAt: Date.now() + expiresIn * 1000,
+    signature,
   };
   return cachedToken.token;
 }
@@ -79,17 +105,19 @@ export async function createPathaoOrder(
   input: PathaoOrderInput
 ): Promise<PathaoOrderResponse> {
   const token = await getPathaoAccessToken();
+  const config = await getCourierConfig();
 
-  const storeId = process.env.PATHAO_STORE_ID;
-  const cityId = Number(process.env.PATHAO_CITY_ID);
-  const zoneId = Number(process.env.PATHAO_ZONE_ID);
-  const areaId = process.env.PATHAO_AREA_ID
-    ? Number(process.env.PATHAO_AREA_ID)
+  const baseUrl = config.courier_pathao_base_url;
+  const storeId = config.courier_pathao_store_id;
+  const cityId = Number(config.courier_pathao_city_id);
+  const zoneId = Number(config.courier_pathao_zone_id);
+  const areaId = config.courier_pathao_area_id
+    ? Number(config.courier_pathao_area_id)
     : undefined;
 
   if (!storeId || !cityId || !zoneId) {
     throw new Error(
-      "Pathao store/city/zone are not configured (set PATHAO_STORE_ID, PATHAO_CITY_ID, PATHAO_ZONE_ID)"
+      "Pathao store/city/zone are not configured (set Pathao store ID, city ID, zone ID in admin settings)"
     );
   }
 
@@ -112,7 +140,7 @@ export async function createPathaoOrder(
 
   if (areaId) payload.recipient_area = areaId;
 
-  const res = await fetch(`${PATHAO_BASE_URL}/aladdin/api/v1/orders`, {
+  const res = await fetch(`${baseUrl}/aladdin/api/v1/orders`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -138,9 +166,11 @@ export async function getPathaoStatus(
   consignmentId: string
 ): Promise<string> {
   const token = await getPathaoAccessToken();
+  const config = await getCourierConfig();
+  const baseUrl = config.courier_pathao_base_url;
 
   const res = await fetch(
-    `${PATHAO_BASE_URL}/aladdin/api/v1/orders/${consignmentId}/info`,
+    `${baseUrl}/aladdin/api/v1/orders/${consignmentId}/info`,
     {
       method: "GET",
       headers: {

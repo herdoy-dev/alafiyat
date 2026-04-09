@@ -6,8 +6,13 @@ import {
   EMPTY_SOCIAL,
   HERO_PRODUCTS_KEY,
   HERO_MAX,
+  COURIER_KEYS,
+  EMPTY_COURIER_CONFIG,
   type SocialLinks,
+  type CourierConfig,
+  type CourierKey,
 } from "@/lib/settings";
+import { invalidatePathaoTokenCache } from "@/services/courier/pathao";
 
 function buildSocialMap(rows: { key: string; value: string }[]): SocialLinks {
   const map: SocialLinks = { ...EMPTY_SOCIAL };
@@ -30,14 +35,29 @@ function parseHero(value: string | undefined): string[] {
   return [];
 }
 
+function buildCourierMap(
+  rows: { key: string; value: string }[]
+): CourierConfig {
+  const map: CourierConfig = { ...EMPTY_COURIER_CONFIG };
+  for (const row of rows) {
+    if ((COURIER_KEYS as readonly string[]).includes(row.key)) {
+      map[row.key as CourierKey] = row.value;
+    }
+  }
+  return map;
+}
+
 async function readSettings() {
   const rows = await prisma.siteSetting.findMany({
-    where: { key: { in: [...SOCIAL_KEYS, HERO_PRODUCTS_KEY] } },
+    where: {
+      key: { in: [...SOCIAL_KEYS, HERO_PRODUCTS_KEY, ...COURIER_KEYS] },
+    },
   });
   const heroRow = rows.find((r) => r.key === HERO_PRODUCTS_KEY);
   return {
     social: buildSocialMap(rows),
     heroProductIds: parseHero(heroRow?.value),
+    courier: buildCourierMap(rows),
   };
 }
 
@@ -66,13 +86,33 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const social = body?.social as Record<string, unknown> | undefined;
     const heroProductIds = body?.heroProductIds as unknown;
+    const courier = body?.courier as Record<string, unknown> | undefined;
 
     const ops = [] as ReturnType<typeof prisma.siteSetting.upsert>[];
+    let courierTouched = false;
+    let pathaoTouched = false;
 
     if (social && typeof social === "object") {
       for (const key of SOCIAL_KEYS) {
         const raw = (social as Record<string, unknown>)[key];
         const value = typeof raw === "string" ? raw.trim() : "";
+        ops.push(
+          prisma.siteSetting.upsert({
+            where: { key },
+            create: { key, value },
+            update: { value },
+          })
+        );
+      }
+    }
+
+    if (courier && typeof courier === "object") {
+      for (const key of COURIER_KEYS) {
+        const raw = (courier as Record<string, unknown>)[key];
+        if (raw === undefined) continue;
+        const value = typeof raw === "string" ? raw.trim() : "";
+        courierTouched = true;
+        if (key.startsWith("courier_pathao_")) pathaoTouched = true;
         ops.push(
           prisma.siteSetting.upsert({
             where: { key },
@@ -104,6 +144,10 @@ export async function PATCH(request: Request) {
     }
 
     await prisma.$transaction(ops);
+
+    if (courierTouched && pathaoTouched) {
+      invalidatePathaoTokenCache();
+    }
 
     return NextResponse.json(await readSettings());
   } catch {

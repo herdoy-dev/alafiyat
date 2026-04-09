@@ -23,11 +23,13 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   EMPTY_SOCIAL,
+  EMPTY_COURIER_CONFIG,
   HERO_MAX,
   SOCIAL_KEYS,
   SOCIAL_LABELS,
   type SocialKey,
   type SocialLinks,
+  type CourierConfig,
 } from "@/lib/settings";
 
 const ICONS: Record<SocialKey, React.ComponentType<{ className?: string }>> = {
@@ -61,6 +63,8 @@ type AdminProduct = {
 export default function AdminSettingsPage() {
   const [social, setSocial] = useState<SocialLinks>(EMPTY_SOCIAL);
   const [heroIds, setHeroIds] = useState<string[]>([]);
+  const [courier, setCourier] =
+    useState<CourierConfig>(EMPTY_COURIER_CONFIG);
   const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +80,7 @@ export default function AdminSettingsPage() {
           const data = await settingsRes.json();
           setSocial(data.social);
           setHeroIds(data.heroProductIds ?? []);
+          if (data.courier) setCourier(data.courier);
         }
         if (productsRes.ok) {
           const data = await productsRes.json();
@@ -97,7 +102,11 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ social, heroProductIds: heroIds }),
+        body: JSON.stringify({
+          social,
+          heroProductIds: heroIds,
+          courier,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -106,6 +115,7 @@ export default function AdminSettingsPage() {
       }
       setSocial(data.social);
       setHeroIds(data.heroProductIds ?? []);
+      if (data.courier) setCourier(data.courier);
       toast.success("Settings saved");
     } finally {
       setSaving(false);
@@ -293,6 +303,260 @@ export default function AdminSettingsPage() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Steadfast */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Steadfast Courier</CardTitle>
+            {!loading && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  courier.courier_steadfast_api_key &&
+                  courier.courier_steadfast_api_secret
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {courier.courier_steadfast_api_key &&
+                courier.courier_steadfast_api_secret
+                  ? "Configured"
+                  : "Not configured"}
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Optional. Fill these in to enable &quot;Send to Courier →
+            Steadfast&quot; on orders. Leave blank if you only use Pathao.
+          </p>
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1 sm:col-span-2">
+                <Label htmlFor="sf-base-url">Base URL</Label>
+                <Input
+                  id="sf-base-url"
+                  placeholder="https://portal.packzy.com/api/v1"
+                  value={courier.courier_steadfast_base_url}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_steadfast_base_url: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="sf-api-key">API key</Label>
+                <Input
+                  id="sf-api-key"
+                  type="password"
+                  autoComplete="off"
+                  value={courier.courier_steadfast_api_key}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_steadfast_api_key: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="sf-api-secret">API secret</Label>
+                <Input
+                  id="sf-api-secret"
+                  type="password"
+                  autoComplete="off"
+                  value={courier.courier_steadfast_api_secret}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_steadfast_api_secret: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Pathao */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Pathao Courier</CardTitle>
+            {!loading && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  courier.courier_pathao_client_id &&
+                  courier.courier_pathao_client_secret &&
+                  courier.courier_pathao_store_id &&
+                  courier.courier_pathao_city_id &&
+                  courier.courier_pathao_zone_id
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {courier.courier_pathao_client_id &&
+                courier.courier_pathao_client_secret &&
+                courier.courier_pathao_store_id &&
+                courier.courier_pathao_city_id &&
+                courier.courier_pathao_zone_id
+                  ? "Configured"
+                  : "Not configured"}
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Optional. Fill these in to enable &quot;Send to Courier →
+            Pathao&quot; on orders. Leave blank if you only use Steadfast.
+          </p>
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1 sm:col-span-2">
+                <Label htmlFor="px-base-url">Base URL</Label>
+                <Input
+                  id="px-base-url"
+                  placeholder="https://api-hermes.pathao.com"
+                  value={courier.courier_pathao_base_url}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_base_url: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-client-id">Client ID</Label>
+                <Input
+                  id="px-client-id"
+                  autoComplete="off"
+                  value={courier.courier_pathao_client_id}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_client_id: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-client-secret">Client secret</Label>
+                <Input
+                  id="px-client-secret"
+                  type="password"
+                  autoComplete="off"
+                  value={courier.courier_pathao_client_secret}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_client_secret: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-username">Username</Label>
+                <Input
+                  id="px-username"
+                  autoComplete="off"
+                  value={courier.courier_pathao_username}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_username: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-password">Password</Label>
+                <Input
+                  id="px-password"
+                  type="password"
+                  autoComplete="off"
+                  value={courier.courier_pathao_password}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_password: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-store">Store ID</Label>
+                <Input
+                  id="px-store"
+                  value={courier.courier_pathao_store_id}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_store_id: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-city">City ID</Label>
+                <Input
+                  id="px-city"
+                  value={courier.courier_pathao_city_id}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_city_id: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-zone">Zone ID</Label>
+                <Input
+                  id="px-zone"
+                  value={courier.courier_pathao_zone_id}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_zone_id: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="px-area">Area ID (optional)</Label>
+                <Input
+                  id="px-area"
+                  value={courier.courier_pathao_area_id}
+                  onChange={(e) =>
+                    setCourier({
+                      ...courier,
+                      courier_pathao_area_id: e.target.value,
+                    })
+                  }
+                />
               </div>
             </div>
           )}

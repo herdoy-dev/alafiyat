@@ -1,5 +1,4 @@
-const STEADFAST_BASE_URL =
-  process.env.STEADFAST_BASE_URL || "https://portal.packzy.com/api/v1";
+import { getCourierConfig } from "@/lib/courier-config";
 
 export type SteadfastOrderInput = {
   invoice: string;
@@ -20,14 +19,16 @@ export type SteadfastConsignment = {
 export async function createSteadfastOrder(
   input: SteadfastOrderInput
 ): Promise<SteadfastConsignment> {
-  const apiKey = process.env.STEADFAST_API_KEY;
-  const secret = process.env.STEADFAST_API_SECRET;
+  const config = await getCourierConfig();
+  const baseUrl = config.courier_steadfast_base_url;
+  const apiKey = config.courier_steadfast_api_key;
+  const secret = config.courier_steadfast_api_secret;
 
   if (!apiKey || !secret) {
     throw new Error("Steadfast credentials are not configured");
   }
 
-  const res = await fetch(`${STEADFAST_BASE_URL}/create_order`, {
+  const res = await fetch(`${baseUrl}/create_order`, {
     method: "POST",
     headers: {
       "Api-Key": apiKey,
@@ -62,24 +63,23 @@ export async function createSteadfastOrder(
 export async function getSteadfastStatus(
   consignmentId: string
 ): Promise<string> {
-  const apiKey = process.env.STEADFAST_API_KEY;
-  const secret = process.env.STEADFAST_API_SECRET;
+  const config = await getCourierConfig();
+  const baseUrl = config.courier_steadfast_base_url;
+  const apiKey = config.courier_steadfast_api_key;
+  const secret = config.courier_steadfast_api_secret;
 
   if (!apiKey || !secret) {
     throw new Error("Steadfast credentials are not configured");
   }
 
-  const res = await fetch(
-    `${STEADFAST_BASE_URL}/status_by_cid/${consignmentId}`,
-    {
-      method: "GET",
-      headers: {
-        "Api-Key": apiKey,
-        "Secret-Key": secret,
-        Accept: "application/json",
-      },
-    }
-  );
+  const res = await fetch(`${baseUrl}/status_by_cid/${consignmentId}`, {
+    method: "GET",
+    headers: {
+      "Api-Key": apiKey,
+      "Secret-Key": secret,
+      Accept: "application/json",
+    },
+  });
 
   const data = await res.json().catch(() => null);
 
