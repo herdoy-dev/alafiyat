@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, Send, Loader2, Sparkles, RotateCcw } from "lucide-react";
+import Image from "next/image";
+import { MessageCircle, X, Send, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -111,48 +112,86 @@ export function ChatWidget() {
     setInput("");
   }
 
+  // Lock body scroll on mobile when chat is open
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (open && window.matchMedia("(max-width: 767px)").matches) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [open]);
+
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — hidden on mobile when chat is open (close lives in header) */}
       <Button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-5 right-5 z-50 h-16 w-16 rounded-full text-white shadow-lg [&_svg]:!size-7"
+        className={cn(
+          "fixed bottom-5 right-5 z-50 h-16 w-16 rounded-full text-white shadow-lg [&_svg]:!size-7",
+          open && "max-md:hidden"
+        )}
         size="icon"
         aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? <X /> : <MessageCircle />}
       </Button>
 
-      {/* Chat panel */}
+      {/* Chat panel — fullscreen on mobile, floating on desktop */}
       <div
         className={cn(
-          "fixed bottom-24 right-5 z-50 flex w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right flex-col rounded-2xl border bg-background shadow-2xl transition-all duration-200",
-          "h-[min(560px,calc(100vh-9rem))]",
+          "fixed z-50 flex flex-col bg-background shadow-2xl transition-all duration-200",
+          // Mobile: full viewport
+          "inset-0 rounded-none border-0",
+          // Desktop: floating panel
+          "md:inset-auto md:bottom-24 md:right-5 md:h-[min(620px,calc(100vh-9rem))] md:w-[calc(100vw-2.5rem)] md:max-w-sm md:rounded-2xl md:border md:origin-bottom-right",
           open
-            ? "scale-100 opacity-100"
-            : "pointer-events-none scale-95 opacity-0"
+            ? "opacity-100 md:scale-100"
+            : "pointer-events-none opacity-0 md:scale-95"
         )}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 rounded-t-2xl border-b bg-primary px-4 py-3 text-primary-foreground">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-foreground/15">
-            <Sparkles className="h-4 w-4" />
+        <div className="flex items-center gap-3 border-b bg-primary px-4 py-3 text-primary-foreground md:rounded-t-2xl">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-1.5 shadow-sm">
+            <Image
+              src="/logo.png"
+              alt="Al Amirat"
+              width={40}
+              height={40}
+              className="h-full w-auto object-contain"
+            />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold">Al Amirat Assistant</p>
-            <p className="text-xs opacity-80">Ask about our products</p>
+            <p className="text-sm font-semibold leading-tight">
+              Al Amirat Assistant
+            </p>
+            <p className="text-xs leading-tight opacity-80">
+              Ask about our products
+            </p>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
+            className="h-9 w-9 text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
             onClick={clearChat}
             disabled={loading || messages.length <= 1}
             title="Clear chat"
             aria-label="Clear chat"
           >
             <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground md:hidden"
+            onClick={() => setOpen(false)}
+            aria-label="Close chat"
+          >
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
