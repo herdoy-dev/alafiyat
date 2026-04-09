@@ -12,7 +12,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
   const c = landing.content;
 
   return (
-    <div className="bg-[#0a0a0c] text-white">
+    <div className="overflow-x-hidden bg-[#0a0a0c] text-white">
       {/* Pre-hero video */}
       {landing.videoUrl && (
         <section className="border-b border-white/10 py-12 md:py-20">
@@ -45,7 +45,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
                   {c.hero.eyebrow}
                 </p>
               )}
-              <h1 className="text-5xl font-light italic leading-[1.05] tracking-tight md:text-7xl">
+              <h1 className="text-4xl font-light italic leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                 {c.hero.headline || product.name}
               </h1>
               {c.hero.subheadline && (
@@ -54,7 +54,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
                 </p>
               )}
               <div className="mt-8 flex flex-wrap items-baseline gap-5">
-                <p className="text-3xl font-light tabular-nums md:text-4xl">
+                <p className="text-2xl font-light tabular-nums sm:text-3xl md:text-4xl">
                   ৳{product.price.toLocaleString()}
                 </p>
                 {c.hero.badge && (
@@ -165,7 +165,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
                   >
                     Chapter {String(i + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="text-3xl font-light italic leading-tight md:text-4xl">
+                  <h3 className="text-2xl font-light italic leading-tight sm:text-3xl md:text-4xl">
                     {h.title}
                   </h3>
                   {h.body && (
@@ -221,7 +221,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
                     ))}
                   </div>
                 )}
-                <blockquote className="text-2xl font-light italic leading-relaxed md:text-3xl">
+                <blockquote className="text-xl font-light italic leading-relaxed sm:text-2xl md:text-3xl">
                   “{t.quote}”
                 </blockquote>
                 <figcaption className="mt-6 text-[11px] uppercase tracking-[0.3em] text-white/55">
@@ -244,7 +244,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
             >
               Enquiries
             </p>
-            <h2 className="mb-10 text-center text-4xl font-light italic md:text-5xl">
+            <h2 className="mb-10 text-center text-3xl font-light italic sm:text-4xl md:text-5xl">
               Should you wonder
             </h2>
             <LandingFaq items={c.faq} theme="dark" />
@@ -258,7 +258,7 @@ export function LuxuryTemplate({ landing, product }: TemplateProps) {
           <div className="grid items-start gap-14 md:grid-cols-2">
             <div>
               {c.finalCta.headline && (
-                <h2 className="text-4xl font-light italic leading-[1.05] md:text-6xl">
+                <h2 className="text-3xl font-light italic leading-[1.05] sm:text-4xl md:text-5xl lg:text-6xl">
                   {c.finalCta.headline}
                 </h2>
               )}

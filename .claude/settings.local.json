@@ -17,7 +17,8 @@
       "Bash(rmdir \"app/\\(shop\\)/l/[slug]\")",
       "Bash(rmdir \"app/\\(shop\\)/l\")",
       "Bash(npx tsx:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(wc -l components/landing/templates/*.tsx)"
     ]
   }
 }

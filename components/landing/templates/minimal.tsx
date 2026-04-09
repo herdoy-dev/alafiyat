@@ -10,7 +10,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
   const c = landing.content;
 
   return (
-    <div className="bg-background text-foreground">
+    <div className="overflow-x-hidden bg-background text-foreground">
       {/* Pre-hero video */}
       {landing.videoUrl && (
         <section className="py-12 md:py-20">
@@ -32,7 +32,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
               {c.hero.eyebrow}
             </p>
           )}
-          <h1 className="text-5xl font-light leading-[1] tracking-tight md:text-7xl">
+          <h1 className="text-4xl font-light leading-[1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             {c.hero.headline || product.name}
           </h1>
           {c.hero.subheadline && (
@@ -115,7 +115,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
                     />
                   </div>
                 )}
-                <h3 className="text-3xl font-light tracking-tight md:text-4xl">
+                <h3 className="text-2xl font-light tracking-tight sm:text-3xl md:text-4xl">
                   {h.title}
                 </h3>
                 {h.body && (
@@ -166,7 +166,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
                     ))}
                   </div>
                 )}
-                <blockquote className="text-2xl font-light leading-relaxed md:text-3xl">
+                <blockquote className="text-xl font-light leading-relaxed sm:text-2xl md:text-3xl">
                   “{t.quote}”
                 </blockquote>
                 <figcaption className="mt-5 text-sm uppercase tracking-widest text-muted-foreground">
@@ -183,7 +183,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
       {c.faq.length > 0 && (
         <section className="border-b border-border/30">
           <div className="container mx-auto max-w-2xl px-4 py-20 md:px-8 md:py-32">
-            <h2 className="mb-10 text-center text-4xl font-light tracking-tight md:text-5xl">
+            <h2 className="mb-10 text-center text-3xl font-light tracking-tight sm:text-4xl md:text-5xl">
               Questions
             </h2>
             <LandingFaq items={c.faq} />
@@ -195,7 +195,7 @@ export function MinimalTemplate({ landing, product }: TemplateProps) {
       <section id="order">
         <div className="container mx-auto max-w-2xl px-4 py-20 text-center md:px-8 md:py-32">
           {c.finalCta.headline && (
-            <h2 className="text-4xl font-light leading-tight tracking-tight md:text-6xl">
+            <h2 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {c.finalCta.headline}
             </h2>
           )}

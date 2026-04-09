@@ -10,7 +10,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
   const c = landing.content;
 
   return (
-    <div className="bg-background text-foreground">
+    <div className="overflow-x-hidden bg-background text-foreground">
       {/* Pre-hero video */}
       {landing.videoUrl && (
         <section className="bg-black py-10 md:py-16">
@@ -36,7 +36,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
                   {c.hero.eyebrow}
                 </p>
               )}
-              <h1 className="text-5xl font-black leading-[0.9] tracking-tight md:text-8xl">
+              <h1 className="text-4xl font-black leading-[0.9] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
                 {c.hero.headline || product.name}
               </h1>
               {c.hero.subheadline && (
@@ -45,7 +45,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
                 </p>
               )}
               <div className="mt-8 flex flex-wrap items-baseline gap-5">
-                <p className="bg-gradient-to-br from-white via-white to-white/60 bg-clip-text text-5xl font-black tabular-nums text-transparent md:text-6xl">
+                <p className="bg-gradient-to-br from-white via-white to-white/60 bg-clip-text text-4xl font-black tabular-nums text-transparent sm:text-5xl md:text-6xl">
                   ৳{product.price.toLocaleString()}
                 </p>
                 {c.hero.badge && (
@@ -149,7 +149,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
                   </div>
                 )}
                 <div>
-                  <h3 className="text-4xl font-black leading-tight tracking-tight md:text-5xl">
+                  <h3 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl md:text-5xl">
                     {h.title}
                   </h3>
                   {h.body && (
@@ -195,7 +195,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
             <p className="mb-3 text-center text-xs font-bold uppercase tracking-[0.3em] text-white/60">
               Customer love
             </p>
-            <h2 className="mb-12 text-center text-4xl font-black md:text-6xl">
+            <h2 className="mb-12 text-center text-3xl font-black sm:text-4xl md:text-5xl lg:text-6xl">
               People are talking
             </h2>
             <div className="grid gap-5 md:grid-cols-3">
@@ -231,7 +231,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
       {c.faq.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container mx-auto max-w-3xl px-4 md:px-8">
-            <h2 className="mb-8 text-center text-4xl font-black tracking-tight md:text-5xl">
+            <h2 className="mb-8 text-center text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
               FAQ
             </h2>
             <LandingFaq items={c.faq} />
@@ -248,7 +248,7 @@ export function BoldTemplate({ landing, product }: TemplateProps) {
           <div className="grid items-start gap-12 md:grid-cols-2">
             <div>
               {c.finalCta.headline && (
-                <h2 className="text-5xl font-black leading-[0.95] tracking-tight md:text-6xl">
+                <h2 className="text-3xl font-black leading-[0.95] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
                   {c.finalCta.headline}
                 </h2>
               )}

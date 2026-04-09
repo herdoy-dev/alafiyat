@@ -10,7 +10,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
   const c = landing.content;
 
   return (
-    <div className="bg-background text-foreground">
+    <div className="overflow-x-hidden bg-background text-foreground">
       {/* Pre-hero video */}
       {landing.videoUrl && (
         <section className="border-b border-border/60 bg-muted/30">
@@ -33,7 +33,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
                   {c.hero.eyebrow}
                 </p>
               )}
-              <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+              <h1 className="text-3xl font-semibold leading-[1.05] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
                 {c.hero.headline || product.name}
               </h1>
               {c.hero.subheadline && (
@@ -42,7 +42,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
                 </p>
               )}
               <div className="mt-7 flex flex-wrap items-baseline gap-4">
-                <p className="text-3xl font-semibold tabular-nums md:text-4xl">
+                <p className="text-2xl font-semibold tabular-nums sm:text-3xl md:text-4xl">
                   ৳{product.price.toLocaleString()}
                 </p>
                 {c.hero.badge && (
@@ -132,7 +132,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-3xl font-semibold tracking-tight md:text-4xl">
+                  <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
                     {h.title}
                   </h3>
                   {h.body && (
@@ -217,7 +217,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
             <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Common questions
             </p>
-            <h2 className="mb-8 text-center text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               You asked, we answered
             </h2>
             <LandingFaq items={c.faq} />
@@ -231,7 +231,7 @@ export function ClassicTemplate({ landing, product }: TemplateProps) {
           <div className="grid items-start gap-10 md:grid-cols-2 md:gap-14">
             <div>
               {c.finalCta.headline && (
-                <h2 className="text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">
+                <h2 className="text-3xl font-semibold leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
                   {c.finalCta.headline}
                 </h2>
               )}

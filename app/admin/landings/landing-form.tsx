@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,24 @@ import {
   type LandingContent,
   type LandingTemplate,
 } from "@/schemas/landing";
+import {
+  DeviceToggle,
+  LandingPreview,
+  type DeviceMode,
+} from "./landing-preview";
+import type {
+  LandingProductLite,
+  LandingViewModel,
+} from "@/components/landing/templates/types";
 
 type AdminProduct = {
   id: string;
   name: string;
+  slug: string;
   thumbnail: string;
   price: number;
+  stock: number;
+  images: string[];
 };
 
 export type LandingFormValues = {
@@ -82,6 +94,30 @@ export function LandingForm({
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [saving, setSaving] = useState(false);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
+  const [device, setDevice] = useState<DeviceMode>("desktop");
+
+  const selectedProduct = useMemo<LandingProductLite | null>(() => {
+    const p = products.find((x) => x.id === values.productId);
+    if (!p) return null;
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      stock: p.stock,
+      thumbnail: p.thumbnail,
+      images: p.images || [],
+    };
+  }, [products, values.productId]);
+
+  const previewLanding: LandingViewModel = {
+    id: landingId ?? "preview",
+    slug: values.slug,
+    title: values.title,
+    template: values.template,
+    videoUrl: values.videoUrl || null,
+    content: values.content,
+  };
 
   useEffect(() => {
     fetch("/api/admin/products?limit=50")
@@ -141,41 +177,63 @@ export function LandingForm({
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/landings">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <p className="text-sm italic text-muted-foreground">
-              {mode === "create" ? "Create" : "Edit"} marketing page
-            </p>
-            <h1 className="text-3xl font-semibold leading-none tracking-tight md:text-4xl">
-              {values.title || "Untitled landing"}
-            </h1>
-          </div>
+    <div className="flex h-[calc(100dvh-9rem)] flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm md:h-[calc(100dvh-7rem)]">
+      {/* Top bar */}
+      <header className="flex items-center gap-2 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-md md:px-6">
+        <Button variant="ghost" size="icon" asChild className="-ml-2">
+          <Link href="/admin/landings">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] italic text-muted-foreground">
+            {mode === "create" ? "Create" : "Edit"} landing
+          </p>
+          <h1 className="truncate text-base font-semibold leading-tight md:text-lg">
+            {values.title || "Untitled landing"}
+          </h1>
         </div>
-        <div className="flex items-center gap-2">
-          {mode === "edit" && values.status === "published" && values.slug && (
-            <Button asChild variant="outline">
-              <a href={`/l/${values.slug}`} target="_blank" rel="noreferrer">
-                <ExternalLink className="mr-1 h-3.5 w-3.5" />
-                Open
-              </a>
-            </Button>
-          )}
-          <Button
-            onClick={() => save(true)}
-            disabled={saving}
-            className="rounded-full"
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button>
+        <div className="hidden md:block">
+          <DeviceToggle value={device} onChange={setDevice} />
         </div>
+        {mode === "edit" && values.status === "published" && values.slug && (
+          <Button asChild variant="outline" size="sm" className="hidden md:inline-flex">
+            <a href={`/l/${values.slug}`} target="_blank" rel="noreferrer">
+              <ExternalLink className="mr-1 h-3.5 w-3.5" />
+              Open
+            </a>
+          </Button>
+        )}
+        <Button
+          onClick={() => save(true)}
+          disabled={saving}
+          size="sm"
+          className="rounded-full"
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
       </header>
+
+      {/* Mobile device toggle */}
+      <div className="flex justify-center border-b border-border/60 bg-background/60 px-4 py-2 md:hidden">
+        <DeviceToggle value={device} onChange={setDevice} />
+      </div>
+
+      {/* Body — preview left, form right */}
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        {/* Preview */}
+        <div className="min-h-[60vh] flex-1 lg:min-h-0">
+          <LandingPreview
+            device={device}
+            template={values.template}
+            landing={previewLanding}
+            product={selectedProduct}
+          />
+        </div>
+
+        {/* Form panel */}
+        <aside className="flex w-full shrink-0 flex-col border-t border-border/60 bg-background lg:w-[420px] lg:border-l lg:border-t-0">
+          <div className="flex-1 space-y-5 overflow-y-auto p-5">
 
       {/* Basics */}
       <Card>
@@ -714,16 +772,8 @@ export function LandingForm({
         </CardContent>
       </Card>
 
-      {/* Bottom save */}
-      <div className="sticky bottom-4 z-10 flex justify-end">
-        <Button
-          onClick={() => save(false)}
-          disabled={saving}
-          className="rounded-full shadow-lg"
-          size="lg"
-        >
-          {saving ? "Saving..." : "Save changes"}
-        </Button>
+          </div>
+        </aside>
       </div>
     </div>
   );

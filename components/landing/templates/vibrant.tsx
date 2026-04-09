@@ -12,7 +12,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
   const c = landing.content;
 
   return (
-    <div className={`${VIBRANT_BG} text-foreground`}>
+    <div className={`${VIBRANT_BG} overflow-x-hidden text-foreground`}>
       {/* Pre-hero video */}
       {landing.videoUrl && (
         <section className="py-10 md:py-16">
@@ -48,7 +48,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
                   {c.hero.eyebrow}
                 </p>
               )}
-              <h1 className="text-5xl font-black leading-[0.9] tracking-tight md:text-7xl">
+              <h1 className="text-4xl font-black leading-[0.9] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                 {c.hero.headline || product.name}
               </h1>
               {c.hero.subheadline && (
@@ -57,7 +57,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
                 </p>
               )}
               <div className="mt-7 flex flex-wrap items-center gap-4">
-                <p className="rounded-2xl border-4 border-foreground bg-yellow-300 px-5 py-2 text-3xl font-black tabular-nums shadow-[5px_5px_0_0_currentColor]">
+                <p className="rounded-2xl border-4 border-foreground bg-yellow-300 px-4 py-2 text-2xl font-black tabular-nums shadow-[5px_5px_0_0_currentColor] sm:px-5 sm:text-3xl">
                   ৳{product.price.toLocaleString()}
                 </p>
                 {c.hero.badge && (
@@ -135,7 +135,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
                     <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-foreground bg-white">
                       <Heart className="h-6 w-6" />
                     </span>
-                    <h3 className="mt-4 text-2xl font-black">{b.title}</h3>
+                    <h3 className="mt-4 text-xl font-black sm:text-2xl">{b.title}</h3>
                     {b.body && (
                       <p className="mt-2 text-sm leading-relaxed">{b.body}</p>
                     )}
@@ -168,7 +168,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
                   </div>
                 )}
                 <div>
-                  <h3 className="text-4xl font-black leading-tight md:text-5xl">
+                  <h3 className="text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
                     {h.title}
                   </h3>
                   {h.body && (
@@ -211,7 +211,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
       {c.testimonials.length > 0 && (
         <section className="bg-amber-100 py-20 md:py-28">
           <div className="container mx-auto max-w-6xl px-4 md:px-8">
-            <h2 className="mb-12 text-center text-5xl font-black tracking-tight md:text-6xl">
+            <h2 className="mb-12 text-center text-4xl font-black tracking-tight sm:text-5xl md:text-6xl">
               People love it ❤️
             </h2>
             <div className="grid gap-6 md:grid-cols-3">
@@ -247,7 +247,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
       {c.faq.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container mx-auto max-w-3xl px-4 md:px-8">
-            <h2 className="mb-8 text-center text-5xl font-black md:text-6xl">
+            <h2 className="mb-8 text-center text-4xl font-black sm:text-5xl md:text-6xl">
               Questions?
             </h2>
             <LandingFaq items={c.faq} />
@@ -261,7 +261,7 @@ export function VibrantTemplate({ landing, product }: TemplateProps) {
           <div className="grid items-start gap-12 md:grid-cols-2">
             <div>
               {c.finalCta.headline && (
-                <h2 className="text-5xl font-black leading-[0.95] md:text-7xl">
+                <h2 className="text-4xl font-black leading-[0.95] sm:text-5xl md:text-6xl lg:text-7xl">
                   {c.finalCta.headline}
                 </h2>
               )}
