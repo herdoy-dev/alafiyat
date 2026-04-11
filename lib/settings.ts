@@ -76,6 +76,9 @@ export const COURIER_DEFAULTS: Partial<CourierConfig> = {
 
 export const MARKETING_KEYS = [
   "marketing_facebook_pixel_id",
+  "marketing_ga4_measurement_id",
+  "marketing_tiktok_pixel_id",
+  "marketing_gtm_container_id",
 ] as const;
 
 export type MarketingKey = (typeof MARKETING_KEYS)[number];
@@ -84,4 +87,35 @@ export type MarketingConfig = Record<MarketingKey, string>;
 
 export const EMPTY_MARKETING: MarketingConfig = {
   marketing_facebook_pixel_id: "",
+  marketing_ga4_measurement_id: "",
+  marketing_tiktok_pixel_id: "",
+  marketing_gtm_container_id: "",
+};
+
+export const BANNER_KEYS = [
+  "banner_enabled",
+  "banner_text",
+  "banner_link",
+  "banner_bg_color",
+] as const;
+
+export type BannerKey = (typeof BANNER_KEYS)[number];
+
+export type BannerConfig = Record<BannerKey, string>;
+
+export const EMPTY_BANNER: BannerConfig = {
+  banner_enabled: "",
+  banner_text: "",
+  banner_link: "",
+  banner_bg_color: "",
+};
+
+export const SITE_KEYS = ["site_domain"] as const;
+
+export type SiteKey = (typeof SITE_KEYS)[number];
+
+export type SiteConfig = Record<SiteKey, string>;
+
+export const EMPTY_SITE: SiteConfig = {
+  site_domain: "",
 };

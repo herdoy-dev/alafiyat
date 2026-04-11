@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Store, Megaphone, Truck } from "lucide-react";
+import { Store, Megaphone, Truck, Bell, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -16,13 +16,25 @@ const tabs = [
     label: "Marketing",
     href: "/admin/settings/marketing",
     icon: Megaphone,
-    description: "Facebook Pixel & analytics",
+    description: "Pixels, analytics & tags",
+  },
+  {
+    label: "Banner",
+    href: "/admin/settings/banner",
+    icon: Bell,
+    description: "Announcement bar",
   },
   {
     label: "Couriers",
     href: "/admin/settings/couriers",
     icon: Truck,
     description: "Steadfast & Pathao credentials",
+  },
+  {
+    label: "Site",
+    href: "/admin/settings/site",
+    icon: Globe,
+    description: "Domain & SEO",
   },
 ];
 

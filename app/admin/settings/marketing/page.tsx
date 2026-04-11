@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,6 +17,53 @@ import {
   EMPTY_MARKETING,
   type MarketingConfig,
 } from "@/lib/settings";
+import { Save } from "lucide-react";
+
+type PixelCard = {
+  key: keyof MarketingConfig;
+  title: string;
+  description: string;
+  placeholder: string;
+  helpText: string;
+};
+
+const pixelCards: PixelCard[] = [
+  {
+    key: "marketing_facebook_pixel_id",
+    title: "Facebook Pixel",
+    description:
+      "Connect Meta (Facebook / Instagram) ad tracking. Tracks PageView, ViewContent, AddToCart, InitiateCheckout, and Purchase events.",
+    placeholder: "e.g. 1234567890123456",
+    helpText: "Find this in Meta Events Manager → Data sources → your pixel.",
+  },
+  {
+    key: "marketing_ga4_measurement_id",
+    title: "Google Analytics 4",
+    description:
+      "Track traffic, user behavior, and conversions with GA4. Supports enhanced e-commerce events.",
+    placeholder: "e.g. G-XXXXXXXXXX",
+    helpText:
+      "Find this in Google Analytics → Admin → Data Streams → your stream.",
+  },
+  {
+    key: "marketing_tiktok_pixel_id",
+    title: "TikTok Pixel",
+    description:
+      "Track TikTok ad conversions with ViewContent, AddToCart, InitiateCheckout, and CompletePayment events.",
+    placeholder: "e.g. CXXXXXXXXXXXXXXXXX",
+    helpText:
+      "Find this in TikTok Ads Manager → Assets → Events → Web Events.",
+  },
+  {
+    key: "marketing_gtm_container_id",
+    title: "Google Tag Manager",
+    description:
+      "Single container for all your tags. If you use GTM, you may manage other pixels through it instead.",
+    placeholder: "e.g. GTM-XXXXXXX",
+    helpText:
+      "Find this in Google Tag Manager → your container → Container ID.",
+  },
+];
 
 export default function MarketingSettingsPage() {
   const [marketing, setMarketing] =
@@ -61,68 +108,68 @@ export default function MarketingSettingsPage() {
     }
   }
 
-  const isActive = !!marketing.marketing_facebook_pixel_id;
-
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2 font-display text-2xl tracking-tight">
-              <Megaphone className="h-5 w-5 text-primary" />
-              Facebook Pixel
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Connect Meta (Facebook / Instagram) ad tracking. The Pixel
-              loads on every storefront page and a PageView event fires
-              automatically once a Pixel ID is saved.
-            </p>
-          </div>
-          {!loading && (
-            <span
-              className={
-                isActive
-                  ? "shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-primary"
-                  : "shrink-0 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
-              }
-            >
-              {isActive ? "Active" : "Inactive"}
-            </span>
-          )}
+    <div className="space-y-6">
+      {pixelCards.map((card) => {
+        const isActive = !!marketing[card.key];
+        return (
+          <Card key={card.key}>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <CardTitle className="font-display text-lg tracking-tight">
+                    {card.title}
+                  </CardTitle>
+                  <CardDescription>{card.description}</CardDescription>
+                </div>
+                {!loading && (
+                  <span
+                    className={
+                      isActive
+                        ? "shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-primary"
+                        : "shrink-0 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                    }
+                  >
+                    {isActive ? "Active" : "Inactive"}
+                  </span>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor={card.key}>ID</Label>
+                  <Input
+                    id={card.key}
+                    placeholder={card.placeholder}
+                    value={marketing[card.key]}
+                    onChange={(e) =>
+                      setMarketing({
+                        ...marketing,
+                        [card.key]: e.target.value,
+                      })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {card.helpText} Leave blank to disable.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {!loading && (
+        <div className="flex justify-end">
+          <Button onClick={save} disabled={saving}>
+            <Save className="mr-2 h-4 w-4" />
+            {saving ? "Saving..." : "Save all changes"}
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {loading ? (
-          <Skeleton className="h-10 w-full" />
-        ) : (
-          <div className="space-y-2">
-            <Label htmlFor="fb-pixel-id">Facebook Pixel ID</Label>
-            <Input
-              id="fb-pixel-id"
-              placeholder="e.g. 1234567890123456"
-              inputMode="numeric"
-              value={marketing.marketing_facebook_pixel_id}
-              onChange={(e) =>
-                setMarketing({
-                  ...marketing,
-                  marketing_facebook_pixel_id: e.target.value,
-                })
-              }
-            />
-            <p className="text-xs text-muted-foreground">
-              Find this in Meta Events Manager → Data sources → your pixel.
-              Leave blank to disable tracking entirely.
-            </p>
-          </div>
-        )}
-        {!loading && (
-          <div className="flex justify-end border-t border-border/60 pt-4">
-            <Button onClick={save} disabled={saving}>
-              {saving ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

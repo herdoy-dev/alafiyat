@@ -16,6 +16,12 @@ import {
   CheckCircle,
   Package,
   TrendingUp,
+  XCircle,
+  ShoppingCart,
+  Truck,
+  PackageCheck,
+  PackageX,
+  BarChart3,
 } from "lucide-react";
 import { RevenueChart } from "@/components/admin/charts/revenue-chart";
 import { OrdersStatusChart } from "@/components/admin/charts/orders-status-chart";
@@ -23,6 +29,11 @@ import { TopProductsChart } from "@/components/admin/charts/top-products-chart";
 import { PaymentMethodsChart } from "@/components/admin/charts/payment-methods-chart";
 import { OrdersCountChart } from "@/components/admin/charts/orders-count-chart";
 import { ProductsCategoryChart } from "@/components/admin/charts/products-category-chart";
+import { ProfitBreakdownChart } from "@/components/admin/charts/profit-breakdown-chart";
+import { RevenueByCategoryChart } from "@/components/admin/charts/revenue-by-category-chart";
+import { CourierStatusChart } from "@/components/admin/charts/courier-status-chart";
+import { CourierProviderChart } from "@/components/admin/charts/courier-provider-chart";
+import { UtmBreakdownChart } from "@/components/admin/charts/utm-breakdown-chart";
 
 type Stats = {
   summary: {
@@ -31,6 +42,9 @@ type Stats = {
     totalProducts: number;
     pendingPurchases: number;
     approvedPurchases: number;
+    rejectedPurchases: number;
+    totalOrders: number;
+    avgOrderValue: number;
   };
   revenueByDay: { date: string; revenue: number }[];
   ordersByDay: { date: string; count: number }[];
@@ -38,6 +52,12 @@ type Stats = {
   topProducts: { name: string; quantity: number }[];
   ordersByPaymentMethod: { method: string; count: number }[];
   productsByCategory: { category: string; count: number }[];
+  revenueByProduct: { name: string; revenue: number }[];
+  revenueByCategory: { category: string; revenue: number }[];
+  courierByProvider: { provider: string; count: number }[];
+  courierByStatus: { status: string; count: number }[];
+  courierSummary: { sent: number; awaitingDispatch: number };
+  utmBreakdown: { source: string; count: number; revenue: number }[];
 };
 
 export default function AdminHomePage() {
@@ -69,6 +89,18 @@ export default function AdminHomePage() {
       tone: "primary" as const,
     },
     {
+      title: "Avg. Order",
+      value: stats ? `৳${stats.summary.avgOrderValue.toLocaleString()}` : "",
+      icon: BarChart3,
+      tone: "muted" as const,
+    },
+    {
+      title: "Total Orders",
+      value: stats ? stats.summary.totalOrders.toLocaleString() : "",
+      icon: ShoppingCart,
+      tone: "muted" as const,
+    },
+    {
       title: "Customers",
       value: stats ? stats.summary.totalUsers.toLocaleString() : "",
       icon: Users,
@@ -80,17 +112,51 @@ export default function AdminHomePage() {
       icon: Package,
       tone: "muted" as const,
     },
+  ];
+
+  const orderStatusCards = [
     {
       title: "Pending",
       value: stats ? stats.summary.pendingPurchases.toLocaleString() : "",
       icon: Clock,
-      tone: "muted" as const,
+      color: "text-yellow-600 dark:text-yellow-400",
+      bg: "bg-yellow-50 dark:bg-yellow-950/30",
+      border: "border-yellow-200 dark:border-yellow-800/50",
     },
     {
       title: "Approved",
       value: stats ? stats.summary.approvedPurchases.toLocaleString() : "",
       icon: CheckCircle,
-      tone: "muted" as const,
+      color: "text-green-600 dark:text-green-400",
+      bg: "bg-green-50 dark:bg-green-950/30",
+      border: "border-green-200 dark:border-green-800/50",
+    },
+    {
+      title: "Rejected",
+      value: stats ? stats.summary.rejectedPurchases.toLocaleString() : "",
+      icon: XCircle,
+      color: "text-red-600 dark:text-red-400",
+      bg: "bg-red-50 dark:bg-red-950/30",
+      border: "border-red-200 dark:border-red-800/50",
+    },
+  ];
+
+  const courierCards = [
+    {
+      title: "Dispatched",
+      value: stats ? stats.courierSummary.sent.toLocaleString() : "",
+      icon: PackageCheck,
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/30",
+      border: "border-blue-200 dark:border-blue-800/50",
+    },
+    {
+      title: "Awaiting Dispatch",
+      value: stats ? stats.courierSummary.awaitingDispatch.toLocaleString() : "",
+      icon: PackageX,
+      color: "text-orange-600 dark:text-orange-400",
+      bg: "bg-orange-50 dark:bg-orange-950/30",
+      border: "border-orange-200 dark:border-orange-800/50",
     },
   ];
 
@@ -144,19 +210,40 @@ export default function AdminHomePage() {
                 }
               />
             ) : (
-              <p
-                className={
-                  card.tone === "primary"
-                    ? "mt-2 font-display text-3xl leading-none tracking-tight tabular-nums"
-                    : "mt-2 font-display text-3xl leading-none tracking-tight tabular-nums"
-                }
-              >
+              <p className="mt-2 font-display text-3xl leading-none tracking-tight tabular-nums">
                 {card.value}
               </p>
             )}
           </div>
         ))}
       </div>
+
+      {/* Order status strip */}
+      <section className="space-y-3">
+        <SectionLabel>Order pipeline</SectionLabel>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {orderStatusCards.map((card) => (
+            <div
+              key={card.title}
+              className={`rounded-xl border ${card.border} ${card.bg} p-5`}
+            >
+              <div className="flex items-center justify-between">
+                <p className={`text-xs font-medium uppercase tracking-wider ${card.color}`}>
+                  {card.title}
+                </p>
+                <card.icon className={`h-4 w-4 ${card.color}`} />
+              </div>
+              {loading ? (
+                <Skeleton className="mt-2 h-9 w-20" />
+              ) : (
+                <p className="mt-2 font-display text-3xl leading-none tracking-tight tabular-nums">
+                  {card.value}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Revenue + Orders Status */}
       <section className="space-y-3">
@@ -189,6 +276,160 @@ export default function AdminHomePage() {
                 <Skeleton className="h-[260px] w-full" />
               ) : (
                 <OrdersStatusChart data={stats.ordersByStatus} />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Profit Breakdown */}
+      <section className="space-y-3">
+        <SectionLabel>Profit breakdown</SectionLabel>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Revenue by product · top 5
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[260px] w-full" />
+              ) : (
+                <ProfitBreakdownChart data={stats.revenueByProduct} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Revenue by category
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[260px] w-full" />
+              ) : (
+                <RevenueByCategoryChart data={stats.revenueByCategory} />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Traffic sources (UTM) */}
+      <section className="space-y-3">
+        <SectionLabel>Traffic sources</SectionLabel>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Orders by UTM source
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[260px] w-full" />
+              ) : (
+                <UtmBreakdownChart data={stats.utmBreakdown} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Revenue by source
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : stats.utmBreakdown.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-8 text-center">
+                  No UTM data yet
+                </p>
+              ) : (
+                <div className="divide-y divide-border/50 text-sm">
+                  <div className="grid grid-cols-3 gap-2 pb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <span>Source</span>
+                    <span className="text-right">Orders</span>
+                    <span className="text-right">Revenue</span>
+                  </div>
+                  {stats.utmBreakdown.map((u) => (
+                    <div key={u.source} className="grid grid-cols-3 gap-2 py-2">
+                      <span className="font-medium">{u.source}</span>
+                      <span className="text-right tabular-nums">
+                        {u.count}
+                      </span>
+                      <span className="text-right tabular-nums">
+                        ৳{u.revenue.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Courier Information */}
+      <section className="space-y-3">
+        <SectionLabel>Courier & fulfillment</SectionLabel>
+        <div className="grid gap-3 sm:grid-cols-2 mb-4">
+          {courierCards.map((card) => (
+            <div
+              key={card.title}
+              className={`rounded-xl border ${card.border} ${card.bg} p-5`}
+            >
+              <div className="flex items-center justify-between">
+                <p className={`text-xs font-medium uppercase tracking-wider ${card.color}`}>
+                  {card.title}
+                </p>
+                <card.icon className={`h-4 w-4 ${card.color}`} />
+              </div>
+              {loading ? (
+                <Skeleton className="mt-2 h-9 w-20" />
+              ) : (
+                <p className="mt-2 font-display text-3xl leading-none tracking-tight tabular-nums">
+                  {card.value}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-muted-foreground" />
+                  Orders by courier
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[260px] w-full" />
+              ) : (
+                <CourierProviderChart data={stats.courierByProvider} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Courier status breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading || !stats ? (
+                <Skeleton className="h-[260px] w-full" />
+              ) : (
+                <CourierStatusChart data={stats.courierByStatus} />
               )}
             </CardContent>
           </Card>

@@ -18,6 +18,8 @@ import {
   MessageSquareWarning,
   Settings,
   LogOut,
+  BarChart3,
+  Ticket,
 } from "lucide-react";
 
 type NavItem = {
@@ -34,7 +36,10 @@ type NavGroup = {
 const navGroups: NavGroup[] = [
   {
     label: "Overview",
-    items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+    ],
   },
   {
     label: "Catalog",
@@ -49,6 +54,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Orders", href: "/admin/purchases", icon: ShoppingCart },
       { label: "Customers", href: "/admin/customers", icon: UserRound },
+      { label: "Coupons", href: "/admin/coupons", icon: Ticket },
     ],
   },
   {

@@ -17,6 +17,13 @@ export const purchaseSchema = z
     shippingAddress: z.string().min(1, "Address is required"),
     shippingCity: z.string().min(1, "City is required"),
     notes: z.string().optional(),
+    discountCode: z.string().optional(),
+    discountAmount: z.number().int().nonnegative().optional().default(0),
+    utmSource: z.string().optional(),
+    utmMedium: z.string().optional(),
+    utmCampaign: z.string().optional(),
+    utmContent: z.string().optional(),
+    utmTerm: z.string().optional(),
   })
   .refine(
     (data) =>

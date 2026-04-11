@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Banknote, Smartphone, ShoppingBag, ArrowRight } from "lucide-react";
+import {
+  Banknote,
+  Smartphone,
+  ShoppingBag,
+  ArrowRight,
+  Tag,
+  X,
+  Loader2,
+} from "lucide-react";
 import { useCart } from "@/lib/stores/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,11 +42,34 @@ const PAYMENT_NUMBERS: Record<string, string> = {
   Upay: "01XXXXXXXXX",
 };
 
+function getUtmFromCookie(): Record<string, string> {
+  if (typeof document === "undefined") return {};
+  const match = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith("utm_params="));
+  if (!match) return {};
+  try {
+    return JSON.parse(decodeURIComponent(match.split("=")[1]));
+  } catch {
+    return {};
+  }
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, clear } = useCart();
   const [mounted, setMounted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountAmount: number;
+    type: string;
+    value: number;
+  } | null>(null);
 
   const [form, setForm] = useState({
     customerEmail: "",
@@ -75,16 +106,56 @@ export default function CheckoutPage() {
     );
   }
 
+  const subtotal = total();
+  const discount = appliedCoupon?.discountAmount ?? 0;
+  const finalTotal = Math.max(0, subtotal - discount);
+
+  async function applyCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, cartTotal: subtotal }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon(data.coupon);
+        toast.success(`Coupon applied! You save ৳${data.coupon.discountAmount.toLocaleString()}`);
+      } else {
+        toast.error(data.error || "Invalid coupon");
+      }
+    } catch {
+      toast.error("Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const utm = getUtmFromCookie();
       const res = await fetch("/api/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
           ...form,
+          discountCode: appliedCoupon?.code || undefined,
+          discountAmount: discount,
+          utmSource: utm.utm_source || undefined,
+          utmMedium: utm.utm_medium || undefined,
+          utmCampaign: utm.utm_campaign || undefined,
+          utmContent: utm.utm_content || undefined,
+          utmTerm: utm.utm_term || undefined,
         }),
       });
       const data = await res.json();
@@ -262,7 +333,7 @@ export default function CheckoutPage() {
               <div className="mt-5 rounded-xl border border-border/60 bg-muted/40 p-4 text-sm text-muted-foreground">
                 Pay{" "}
                 <span className="font-display tabular-nums text-foreground">
-                  ৳{total().toLocaleString()}
+                  ৳{finalTotal.toLocaleString()}
                 </span>{" "}
                 in cash to the delivery agent when your order arrives.
               </div>
@@ -301,7 +372,7 @@ export default function CheckoutPage() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     Amount:{" "}
                     <span className="tabular-nums text-foreground">
-                      ৳{total().toLocaleString()}
+                      ৳{finalTotal.toLocaleString()}
                     </span>
                   </p>
                 </div>
@@ -367,13 +438,82 @@ export default function CheckoutPage() {
               ))}
             </ul>
 
-            <div className="mt-5 flex items-baseline justify-between">
-              <span className="font-display text-sm italic text-muted-foreground">
-                Total
-              </span>
-              <span className="font-display text-3xl tracking-tight tabular-nums">
-                ৳{total().toLocaleString()}
-              </span>
+            {/* Coupon */}
+            <div className="mt-4 space-y-2">
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800/50 dark:bg-green-950/30">
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                      {appliedCoupon.code}
+                    </span>
+                    <span className="text-xs text-green-600 dark:text-green-400">
+                      −৳{appliedCoupon.discountAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    className="text-green-600 hover:text-green-800 dark:text-green-400"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Coupon code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        applyCoupon();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="shrink-0"
+                  >
+                    {couponLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Apply"
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="flex items-baseline justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="tabular-nums">
+                  ৳{subtotal.toLocaleString()}
+                </span>
+              </div>
+              {discount > 0 && (
+                <div className="flex items-baseline justify-between text-sm text-green-600 dark:text-green-400">
+                  <span>Discount</span>
+                  <span className="tabular-nums">
+                    −৳{discount.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
+                <span className="font-display text-sm italic text-muted-foreground">
+                  Total
+                </span>
+                <span className="font-display text-3xl tracking-tight tabular-nums">
+                  ৳{finalTotal.toLocaleString()}
+                </span>
+              </div>
             </div>
 
             <Button

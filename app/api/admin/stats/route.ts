@@ -37,11 +37,19 @@ export async function GET() {
       totalProducts,
       pendingPurchases,
       approvedPurchases,
+      rejectedPurchases,
+      totalOrders,
       recentPurchases,
       ordersByStatusRaw,
       topProductsRaw,
       ordersByMethodRaw,
       productsByCategoryRaw,
+      courierByProviderRaw,
+      courierByStatusRaw,
+      courierSentCount,
+      courierNotSentCount,
+      revenueByProductRaw,
+      utmBreakdownRaw,
     ] = await Promise.all([
       prisma.purchase.aggregate({
         _sum: { amount: true },
@@ -51,6 +59,8 @@ export async function GET() {
       prisma.product.count(),
       prisma.purchase.count({ where: { status: "pending" } }),
       prisma.purchase.count({ where: { status: "approved" } }),
+      prisma.purchase.count({ where: { status: "rejected" } }),
+      prisma.purchase.count(),
       prisma.purchase.findMany({
         where: { createdAt: { gte: since } },
         select: { createdAt: true, amount: true, status: true },
@@ -73,6 +83,41 @@ export async function GET() {
         by: ["categoryId"],
         _count: { _all: true },
       }),
+      // Courier: by provider
+      prisma.purchase.groupBy({
+        by: ["courierProvider"],
+        _count: { _all: true },
+        where: { courierProvider: { not: null } },
+      }),
+      // Courier: by status
+      prisma.purchase.groupBy({
+        by: ["courierStatus"],
+        _count: { _all: true },
+        where: { courierStatus: { not: null } },
+      }),
+      // Courier: sent count
+      prisma.purchase.count({ where: { courierSentAt: { not: null } } }),
+      // Courier: not sent count (approved but not dispatched)
+      prisma.purchase.count({
+        where: { status: "approved", courierSentAt: null },
+      }),
+      // Revenue by product (top 5 revenue earners)
+      prisma.purchaseItem.groupBy({
+        by: ["productName"],
+        _sum: { price: true, quantity: true },
+        where: { purchase: { status: "approved" } },
+        orderBy: { _sum: { price: "desc" } },
+        take: 5,
+      }),
+      // UTM source breakdown
+      prisma.purchase.groupBy({
+        by: ["utmSource"],
+        _count: { _all: true },
+        _sum: { amount: true },
+        where: { utmSource: { not: null } },
+        orderBy: { _count: { utmSource: "desc" } },
+        take: 10,
+      }),
     ]);
 
     const categoryIds = productsByCategoryRaw
@@ -86,6 +131,25 @@ export async function GET() {
           })
         : [];
     const categoryNameMap = new Map(categories.map((c) => [c.id, c.name]));
+
+    // Revenue by category: get approved purchase items with product's category
+    const revenueByCategoryItems = await prisma.purchaseItem.findMany({
+      where: { purchase: { status: "approved" } },
+      select: {
+        price: true,
+        quantity: true,
+        product: { select: { categoryId: true } },
+      },
+    });
+    const revCatMap = new Map<string, number>();
+    for (const item of revenueByCategoryItems) {
+      const catId = item.product.categoryId;
+      const catName = catId ? (categoryNameMap.get(catId) ?? "Uncategorized") : "Uncategorized";
+      revCatMap.set(catName, (revCatMap.get(catName) ?? 0) + item.price * item.quantity);
+    }
+    const revenueByCategory = Array.from(revCatMap.entries())
+      .map(([category, revenue]) => ({ category, revenue }))
+      .sort((a, b) => b.revenue - a.revenue);
 
     // Bucket recent purchases into days
     const buckets = emptyDays();
@@ -104,6 +168,12 @@ export async function GET() {
       ordersByDay.push({ date, count: v.count });
     }
 
+    // Average order value
+    const avgOrderValue =
+      approvedPurchases > 0
+        ? Math.round((totalRevenueResult._sum.amount || 0) / approvedPurchases)
+        : 0;
+
     return NextResponse.json({
       summary: {
         totalRevenue: totalRevenueResult._sum.amount || 0,
@@ -111,6 +181,9 @@ export async function GET() {
         totalProducts,
         pendingPurchases,
         approvedPurchases,
+        rejectedPurchases,
+        totalOrders,
+        avgOrderValue,
       },
       revenueByDay,
       ordersByDay,
@@ -131,6 +204,31 @@ export async function GET() {
           ? categoryNameMap.get(c.categoryId) ?? "Uncategorized"
           : "Uncategorized",
         count: c._count._all,
+      })),
+      // Profit breakdown
+      revenueByProduct: revenueByProductRaw.map((p) => ({
+        name: p.productName,
+        revenue: (p._sum.price ?? 0) * (p._sum.quantity ?? 1),
+      })),
+      revenueByCategory,
+      // Courier information
+      courierByProvider: courierByProviderRaw.map((c) => ({
+        provider: c.courierProvider!,
+        count: c._count._all,
+      })),
+      courierByStatus: courierByStatusRaw.map((c) => ({
+        status: c.courierStatus!,
+        count: c._count._all,
+      })),
+      courierSummary: {
+        sent: courierSentCount,
+        awaitingDispatch: courierNotSentCount,
+      },
+      // UTM breakdown
+      utmBreakdown: utmBreakdownRaw.map((u) => ({
+        source: u.utmSource!,
+        count: u._count._all,
+        revenue: u._sum.amount ?? 0,
       })),
     });
   } catch {

@@ -43,6 +43,36 @@ export async function POST(request: Request) {
 
     const isCod = parsed.data.paymentMethod === "Cash on Delivery";
 
+    // Validate and apply coupon if provided
+    let discountAmount = 0;
+    const discountCode = parsed.data.discountCode || null;
+
+    if (discountCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: discountCode.toUpperCase().trim() },
+      });
+      if (
+        coupon &&
+        coupon.active &&
+        (!coupon.expiresAt || new Date(coupon.expiresAt) >= new Date()) &&
+        (coupon.maxUses === null || coupon.usedCount < coupon.maxUses) &&
+        amount >= coupon.minOrder
+      ) {
+        if (coupon.type === "percentage") {
+          discountAmount = Math.round((amount * coupon.value) / 100);
+        } else {
+          discountAmount = Math.min(coupon.value, amount);
+        }
+        // Increment usage
+        await prisma.coupon.update({
+          where: { id: coupon.id },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+    }
+
+    const finalAmount = Math.max(0, amount - discountAmount);
+
     // Find-or-create customer keyed by phone; refresh latest contact details
     const customerEmail = parsed.data.customerEmail || null;
     const customer = await prisma.customer.upsert({
@@ -66,7 +96,7 @@ export async function POST(request: Request) {
       data: {
         customerId: customer.id,
         customerEmail,
-        amount,
+        amount: finalAmount,
         paymentMethod: parsed.data.paymentMethod,
         phoneNumber: isCod
           ? parsed.data.shippingPhone
@@ -77,6 +107,13 @@ export async function POST(request: Request) {
         shippingAddress: parsed.data.shippingAddress,
         shippingCity: parsed.data.shippingCity,
         notes: parsed.data.notes,
+        discountCode,
+        discountAmount,
+        utmSource: parsed.data.utmSource || null,
+        utmMedium: parsed.data.utmMedium || null,
+        utmCampaign: parsed.data.utmCampaign || null,
+        utmContent: parsed.data.utmContent || null,
+        utmTerm: parsed.data.utmTerm || null,
         status: "pending",
         items: { create: itemsData },
       },

@@ -187,7 +187,24 @@ const products = [
   },
 ];
 
+// Helper: random date within last N days
+function daysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  d.setHours(
+    Math.floor(Math.random() * 24),
+    Math.floor(Math.random() * 60),
+    Math.floor(Math.random() * 60)
+  );
+  return d;
+}
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 const sampleOrders = [
+  // Original 5 orders
   {
     customerEmail: "rahim@example.com",
     shippingName: "Rahim Ahmed",
@@ -199,6 +216,13 @@ const sampleOrders = [
     transactionId: "TX1A2B3C",
     status: "approved",
     items: [{ slug: "classic-white-sneakers", quantity: 1 }],
+    daysAgo: 2,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "spring_sale",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
   },
   {
     customerEmail: "fatima@example.com",
@@ -214,6 +238,9 @@ const sampleOrders = [
       { slug: "minimalist-leather-wallet", quantity: 2 },
       { slug: "polarized-aviator-sunglasses", quantity: 1 },
     ],
+    daysAgo: 1,
+    utmSource: "google",
+    utmMedium: "organic",
   },
   {
     customerEmail: null,
@@ -226,6 +253,10 @@ const sampleOrders = [
     transactionId: "TX7G8H9I",
     status: "pending",
     items: [{ slug: "wireless-noise-cancelling-headphones", quantity: 1 }],
+    daysAgo: 0,
+    utmSource: "tiktok",
+    utmMedium: "cpc",
+    utmCampaign: "headphones_promo",
   },
   {
     customerEmail: "nadia@example.com",
@@ -241,6 +272,13 @@ const sampleOrders = [
       { slug: "cotton-crewneck-tshirt", quantity: 3 },
       { slug: "stainless-steel-water-bottle", quantity: 1 },
     ],
+    daysAgo: 5,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "spring_sale",
+    courierProvider: "Steadfast",
+    courierStatus: "in_transit",
+    courierSentAt: true,
   },
   {
     customerEmail: "tareq@example.com",
@@ -253,6 +291,388 @@ const sampleOrders = [
     transactionId: "TXM4N5O6",
     status: "rejected",
     items: [{ slug: "smart-fitness-watch", quantity: 1 }],
+    daysAgo: 3,
+  },
+  // 20+ more orders with variety
+  {
+    customerEmail: "arif@example.com",
+    shippingName: "Arif Rahman",
+    shippingPhone: "01766666666",
+    shippingAddress: "House 5, Mirpur 10",
+    shippingCity: "Dhaka",
+    paymentMethod: "bKash",
+    phoneNumber: "01766666666",
+    transactionId: "TXP1Q2R3",
+    status: "approved",
+    items: [{ slug: "canvas-backpack", quantity: 1 }],
+    daysAgo: 7,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "backpack_ad",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "sabrina@example.com",
+    shippingName: "Sabrina Akter",
+    shippingPhone: "01877777777",
+    shippingAddress: "Road 12, Banani",
+    shippingCity: "Dhaka",
+    paymentMethod: "Nagad",
+    phoneNumber: "01877777777",
+    transactionId: "TXS4T5U6",
+    status: "approved",
+    items: [
+      { slug: "aromatic-scented-candle", quantity: 2 },
+      { slug: "ceramic-coffee-mug-set", quantity: 1 },
+    ],
+    daysAgo: 4,
+    utmSource: "instagram",
+    utmMedium: "social",
+    utmCampaign: "home_decor",
+    courierProvider: "Steadfast",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "zahid@example.com",
+    shippingName: "Zahid Hasan",
+    shippingPhone: "01988888888",
+    shippingAddress: "Agrabad, Near Port",
+    shippingCity: "Chittagong",
+    paymentMethod: "bKash",
+    phoneNumber: "01988888888",
+    transactionId: "TXV7W8X9",
+    status: "approved",
+    items: [{ slug: "smart-fitness-watch", quantity: 1 }],
+    daysAgo: 10,
+    utmSource: "google",
+    utmMedium: "cpc",
+    utmCampaign: "fitness_watch",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "mim@example.com",
+    shippingName: "Mim Sultana",
+    shippingPhone: "01611111122",
+    shippingAddress: "Shahbag, Near TSC",
+    shippingCity: "Dhaka",
+    paymentMethod: "Cash on Delivery",
+    phoneNumber: "",
+    transactionId: "",
+    status: "approved",
+    items: [
+      { slug: "yoga-mat", quantity: 1 },
+      { slug: "stainless-steel-water-bottle", quantity: 2 },
+    ],
+    daysAgo: 6,
+    courierProvider: "Steadfast",
+    courierStatus: "picked_up",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "rubel@example.com",
+    shippingName: "Rubel Mia",
+    shippingPhone: "01722222233",
+    shippingAddress: "Station Road",
+    shippingCity: "Sylhet",
+    paymentMethod: "Nagad",
+    phoneNumber: "01722222233",
+    transactionId: "TXRUB123",
+    status: "approved",
+    items: [{ slug: "wireless-noise-cancelling-headphones", quantity: 1 }],
+    daysAgo: 12,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "headphones_promo",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "luna@example.com",
+    shippingName: "Luna Begum",
+    shippingPhone: "01833333344",
+    shippingAddress: "College Road",
+    shippingCity: "Rajshahi",
+    paymentMethod: "bKash",
+    phoneNumber: "01833333344",
+    transactionId: "TXLUNA01",
+    status: "approved",
+    items: [
+      { slug: "classic-white-sneakers", quantity: 1 },
+      { slug: "cotton-crewneck-tshirt", quantity: 2 },
+    ],
+    daysAgo: 8,
+    utmSource: "tiktok",
+    utmMedium: "cpc",
+    utmCampaign: "sneakers_tiktok",
+    courierProvider: "Steadfast",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "farhan@example.com",
+    shippingName: "Farhan Chowdhury",
+    shippingPhone: "01944444455",
+    shippingAddress: "Kazir Dewri",
+    shippingCity: "Chittagong",
+    paymentMethod: "Rocket",
+    phoneNumber: "01944444455",
+    transactionId: "TXFAR001",
+    status: "pending",
+    items: [{ slug: "mechanical-keyboard", quantity: 1 }],
+    daysAgo: 1,
+    utmSource: "google",
+    utmMedium: "organic",
+  },
+  {
+    customerEmail: "tasnim@example.com",
+    shippingName: "Tasnim Rahman",
+    shippingPhone: "01655555566",
+    shippingAddress: "New Market Area",
+    shippingCity: "Dhaka",
+    paymentMethod: "Cash on Delivery",
+    phoneNumber: "",
+    transactionId: "",
+    status: "approved",
+    items: [
+      { slug: "polarized-aviator-sunglasses", quantity: 1 },
+      { slug: "minimalist-leather-wallet", quantity: 1 },
+    ],
+    daysAgo: 15,
+    utmSource: "instagram",
+    utmMedium: "social",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "sakib@example.com",
+    shippingName: "Sakib Al Hasan",
+    shippingPhone: "01766666677",
+    shippingAddress: "Tongi, Gazipur",
+    shippingCity: "Gazipur",
+    paymentMethod: "bKash",
+    phoneNumber: "01766666677",
+    transactionId: "TXSAK001",
+    status: "approved",
+    items: [{ slug: "classic-white-sneakers", quantity: 2 }],
+    daysAgo: 20,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "spring_sale",
+    courierProvider: "Steadfast",
+    courierStatus: "delivered",
+    courierSentAt: true,
+    discountCode: "WELCOME10",
+    discountAmount: 500,
+  },
+  {
+    customerEmail: "jui@example.com",
+    shippingName: "Jui Akter",
+    shippingPhone: "01877777788",
+    shippingAddress: "Nawabpur Road",
+    shippingCity: "Dhaka",
+    paymentMethod: "Nagad",
+    phoneNumber: "01877777788",
+    transactionId: "TXJUI001",
+    status: "approved",
+    items: [
+      { slug: "aromatic-scented-candle", quantity: 3 },
+      { slug: "yoga-mat", quantity: 1 },
+    ],
+    daysAgo: 3,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "home_decor",
+    courierProvider: "Pathao",
+    courierStatus: "in_transit",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "mahfuz@example.com",
+    shippingName: "Mahfuz Alam",
+    shippingPhone: "01988888899",
+    shippingAddress: "Savar, EPZ Road",
+    shippingCity: "Savar",
+    paymentMethod: "bKash",
+    phoneNumber: "01988888899",
+    transactionId: "TXMAH001",
+    status: "rejected",
+    items: [{ slug: "smart-fitness-watch", quantity: 1 }],
+    daysAgo: 11,
+    utmSource: "google",
+    utmMedium: "cpc",
+  },
+  {
+    customerEmail: "priya@example.com",
+    shippingName: "Priya Das",
+    shippingPhone: "01611111133",
+    shippingAddress: "Lalkhan Bazar",
+    shippingCity: "Chittagong",
+    paymentMethod: "Cash on Delivery",
+    phoneNumber: "",
+    transactionId: "",
+    status: "approved",
+    items: [
+      { slug: "ceramic-coffee-mug-set", quantity: 2 },
+      { slug: "stainless-steel-water-bottle", quantity: 1 },
+    ],
+    daysAgo: 9,
+    courierProvider: "Steadfast",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "rafiq@example.com",
+    shippingName: "Rafiq Uddin",
+    shippingPhone: "01722222244",
+    shippingAddress: "Boro Bazar",
+    shippingCity: "Khulna",
+    paymentMethod: "Rocket",
+    phoneNumber: "01722222244",
+    transactionId: "TXRAF001",
+    status: "approved",
+    items: [{ slug: "canvas-backpack", quantity: 1 }],
+    daysAgo: 14,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "backpack_ad",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "sonia@example.com",
+    shippingName: "Sonia Khatun",
+    shippingPhone: "01833333355",
+    shippingAddress: "Sonadanga",
+    shippingCity: "Khulna",
+    paymentMethod: "bKash",
+    phoneNumber: "01833333355",
+    transactionId: "TXSON001",
+    status: "pending",
+    items: [
+      { slug: "cotton-crewneck-tshirt", quantity: 4 },
+      { slug: "classic-white-sneakers", quantity: 1 },
+    ],
+    daysAgo: 0,
+    utmSource: "tiktok",
+    utmMedium: "organic",
+  },
+  {
+    customerEmail: "tanvir@example.com",
+    shippingName: "Tanvir Hossain",
+    shippingPhone: "01944444466",
+    shippingAddress: "Zindabazar",
+    shippingCity: "Sylhet",
+    paymentMethod: "Nagad",
+    phoneNumber: "01944444466",
+    transactionId: "TXTAN001",
+    status: "approved",
+    items: [{ slug: "wireless-noise-cancelling-headphones", quantity: 1 }],
+    daysAgo: 18,
+    utmSource: "google",
+    utmMedium: "organic",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "shila@example.com",
+    shippingName: "Shila Rani",
+    shippingPhone: "01655555577",
+    shippingAddress: "Court Para",
+    shippingCity: "Comilla",
+    paymentMethod: "Cash on Delivery",
+    phoneNumber: "",
+    transactionId: "",
+    status: "approved",
+    items: [
+      { slug: "minimalist-leather-wallet", quantity: 1 },
+      { slug: "aromatic-scented-candle", quantity: 1 },
+    ],
+    daysAgo: 22,
+    courierProvider: "Steadfast",
+    courierStatus: "delivered",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "habib@example.com",
+    shippingName: "Habib Ur Rahman",
+    shippingPhone: "01766666688",
+    shippingAddress: "Ambarkhana",
+    shippingCity: "Sylhet",
+    paymentMethod: "bKash",
+    phoneNumber: "01766666688",
+    transactionId: "TXHAB001",
+    status: "approved",
+    items: [
+      { slug: "smart-fitness-watch", quantity: 1 },
+      { slug: "polarized-aviator-sunglasses", quantity: 1 },
+    ],
+    daysAgo: 25,
+    utmSource: "facebook",
+    utmMedium: "cpc",
+    utmCampaign: "bundle_deal",
+    courierProvider: "Pathao",
+    courierStatus: "delivered",
+    courierSentAt: true,
+    discountCode: "BUNDLE15",
+    discountAmount: 1185,
+  },
+  {
+    customerEmail: "rima@example.com",
+    shippingName: "Rima Akter",
+    shippingPhone: "01877777799",
+    shippingAddress: "Mohakhali DOHS",
+    shippingCity: "Dhaka",
+    paymentMethod: "Nagad",
+    phoneNumber: "01877777799",
+    transactionId: "TXRIM001",
+    status: "approved",
+    items: [{ slug: "yoga-mat", quantity: 2 }],
+    daysAgo: 2,
+    utmSource: "instagram",
+    utmMedium: "social",
+    utmCampaign: "fitness_insta",
+    courierProvider: "Steadfast",
+    courierStatus: "pending",
+    courierSentAt: true,
+  },
+  {
+    customerEmail: "kamrul@example.com",
+    shippingName: "Kamrul Islam",
+    shippingPhone: "01988888800",
+    shippingAddress: "Mogbazar",
+    shippingCity: "Dhaka",
+    paymentMethod: "bKash",
+    phoneNumber: "01988888800",
+    transactionId: "TXKAM001",
+    status: "pending",
+    items: [{ slug: "ceramic-coffee-mug-set", quantity: 1 }],
+    daysAgo: 0,
+    utmSource: "direct",
+  },
+  {
+    customerEmail: "nazmul@example.com",
+    shippingName: "Nazmul Haque",
+    shippingPhone: "01611111144",
+    shippingAddress: "Motijheel",
+    shippingCity: "Dhaka",
+    paymentMethod: "Upay",
+    phoneNumber: "01611111144",
+    transactionId: "TXNAZ001",
+    status: "rejected",
+    items: [{ slug: "mechanical-keyboard", quantity: 1 }],
+    daysAgo: 6,
+    utmSource: "google",
+    utmMedium: "cpc",
+    utmCampaign: "tech_deals",
   },
 ];
 
@@ -281,18 +701,216 @@ const sampleComplaints = [
       "I paid via bKash but the order still shows pending. Transaction ID: TX123456. Please verify.",
     status: "open",
   },
+  {
+    fullName: "Ayesha Siddika",
+    phone: "01799999994",
+    email: "ayesha@example.com",
+    message:
+      "I received the wrong color. Ordered black but got brown. Please arrange exchange.",
+    status: "open",
+  },
+  {
+    fullName: "Masud Rana",
+    phone: "01799999995",
+    email: "masud@example.com",
+    message:
+      "The product quality is not as shown on the website. Very disappointed.",
+    status: "resolved",
+  },
 ];
+
+const sampleCoupons = [
+  {
+    code: "WELCOME10",
+    type: "percentage",
+    value: 10,
+    minOrder: 1000,
+    maxUses: 100,
+    usedCount: 12,
+    active: true,
+    expiresAt: new Date("2026-12-31"),
+  },
+  {
+    code: "BUNDLE15",
+    type: "percentage",
+    value: 15,
+    minOrder: 3000,
+    maxUses: 50,
+    usedCount: 5,
+    active: true,
+    expiresAt: new Date("2026-06-30"),
+  },
+  {
+    code: "FLAT200",
+    type: "fixed",
+    value: 200,
+    minOrder: 1500,
+    maxUses: null,
+    usedCount: 28,
+    active: true,
+    expiresAt: null,
+  },
+  {
+    code: "SUMMER25",
+    type: "percentage",
+    value: 25,
+    minOrder: 5000,
+    maxUses: 20,
+    usedCount: 20,
+    active: false,
+    expiresAt: new Date("2026-03-31"),
+  },
+  {
+    code: "FREE500",
+    type: "fixed",
+    value: 500,
+    minOrder: 2000,
+    maxUses: 30,
+    usedCount: 8,
+    active: true,
+    expiresAt: new Date("2026-09-30"),
+  },
+];
+
+// Generate realistic page views for analytics
+function generatePageViews() {
+  const pages = [
+    "/",
+    "/products",
+    "/products/classic-white-sneakers",
+    "/products/minimalist-leather-wallet",
+    "/products/wireless-noise-cancelling-headphones",
+    "/products/cotton-crewneck-tshirt",
+    "/products/smart-fitness-watch",
+    "/products/canvas-backpack",
+    "/products/polarized-aviator-sunglasses",
+    "/products/yoga-mat",
+    "/products/ceramic-coffee-mug-set",
+    "/products/stainless-steel-water-bottle",
+    "/cart",
+    "/checkout",
+    "/complain",
+  ];
+
+  const referrers = [
+    "https://www.facebook.com/",
+    "https://www.google.com/",
+    "https://www.tiktok.com/",
+    "https://www.instagram.com/",
+    "https://t.co/",
+    null,
+    null,
+    null, // direct traffic
+  ];
+
+  const utmSources = [
+    { source: "facebook", medium: "cpc", campaign: "spring_sale" },
+    { source: "facebook", medium: "cpc", campaign: "backpack_ad" },
+    { source: "facebook", medium: "cpc", campaign: "home_decor" },
+    { source: "google", medium: "cpc", campaign: "fitness_watch" },
+    { source: "google", medium: "organic", campaign: null },
+    { source: "tiktok", medium: "cpc", campaign: "sneakers_tiktok" },
+    { source: "instagram", medium: "social", campaign: "fitness_insta" },
+    { source: "direct", medium: null, campaign: null },
+    { source: null, medium: null, campaign: null },
+    { source: null, medium: null, campaign: null },
+  ];
+
+  const devices = ["desktop", "mobile", "mobile", "mobile", "tablet"]; // mobile heavy
+  const browsers = ["Chrome", "Safari", "Firefox", "Edge", "Samsung Internet"];
+  const cities = [
+    "Dhaka",
+    "Dhaka",
+    "Dhaka",
+    "Chittagong",
+    "Sylhet",
+    "Rajshahi",
+    "Khulna",
+    "Comilla",
+    "Gazipur",
+    "Narayanganj",
+  ];
+  const userAgents = [
+    "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) AppleWebKit/605.1.15 Safari/604.1",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+    "Mozilla/5.0 (Linux; Android 14; SM-S918B) Chrome/120.0",
+  ];
+
+  const views: Array<{
+    sessionId: string;
+    page: string;
+    referrer: string | null;
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    userAgent: string;
+    device: string;
+    browser: string;
+    city: string;
+    country: string;
+    ip: string;
+    createdAt: Date;
+  }> = [];
+
+  // Generate ~300 sessions over the last 7 days with multiple page views each
+  for (let s = 0; s < 300; s++) {
+    const sessionId = `sess_${Date.now()}_${s}_${Math.random().toString(36).slice(2, 8)}`;
+    const sessionDaysAgo = Math.random() * 7;
+    const utm = pick(utmSources);
+    const device = pick(devices);
+    const browser = pick(browsers);
+    const city = pick(cities);
+    const ua = pick(userAgents);
+    const referrer = pick(referrers);
+    const ip = `103.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+
+    // Each session has 1-8 page views
+    const pageCount = 1 + Math.floor(Math.random() * 8);
+    const sessionPages = [pick(pages)];
+    for (let p = 1; p < pageCount; p++) {
+      sessionPages.push(pick(pages));
+    }
+
+    const baseTime = daysAgo(sessionDaysAgo);
+    for (let p = 0; p < sessionPages.length; p++) {
+      const viewTime = new Date(baseTime.getTime() + p * (10000 + Math.random() * 120000));
+      views.push({
+        sessionId,
+        page: sessionPages[p],
+        referrer: p === 0 ? referrer : null,
+        utmSource: p === 0 ? utm.source : null,
+        utmMedium: p === 0 ? utm.medium : null,
+        utmCampaign: p === 0 ? utm.campaign : null,
+        userAgent: ua,
+        device,
+        browser,
+        city,
+        country: "BD",
+        ip,
+        createdAt: viewTime,
+      });
+    }
+  }
+
+  return views;
+}
 
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // Wipe data (keeps admin user + site settings)
+  // Wipe data
+  await prisma.pageView.deleteMany();
+  await prisma.coupon.deleteMany();
   await prisma.complaint.deleteMany();
-  await prisma.purchase.deleteMany(); // cascades PurchaseItem
+  await prisma.purchaseItem.deleteMany();
+  await prisma.purchase.deleteMany();
   await prisma.customer.deleteMany();
+  await prisma.landing.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
-  console.log("✓ Cleared products, categories, customers, complaints, orders");
+  console.log("✓ Cleared all data");
 
   // Admin user
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
@@ -335,7 +953,7 @@ async function main() {
   }
   console.log(`✓ Seeded ${products.length} products`);
 
-  // Orders — also upsert a Customer per order, mirroring checkout flow
+  // Orders
   const productMap = new Map(
     (await prisma.product.findMany()).map((p) => [p.slug, p])
   );
@@ -352,10 +970,9 @@ async function main() {
       };
     });
 
-    const amount = itemsData.reduce(
-      (sum, i) => sum + i.price * i.quantity,
-      0
-    );
+    let amount = itemsData.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const discountAmount = (order as { discountAmount?: number }).discountAmount ?? 0;
+    amount = Math.max(0, amount - discountAmount);
 
     const customer = await prisma.customer.upsert({
       where: { phone: order.shippingPhone },
@@ -374,6 +991,12 @@ async function main() {
       },
     });
 
+    const createdAt = daysAgo(order.daysAgo);
+    const courierSentAt =
+      (order as { courierSentAt?: boolean }).courierSentAt
+        ? new Date(createdAt.getTime() + 24 * 60 * 60 * 1000)
+        : undefined;
+
     await prisma.purchase.create({
       data: {
         customerId: customer.id,
@@ -387,6 +1010,15 @@ async function main() {
         shippingPhone: order.shippingPhone,
         shippingAddress: order.shippingAddress,
         shippingCity: order.shippingCity,
+        utmSource: (order as { utmSource?: string }).utmSource ?? null,
+        utmMedium: (order as { utmMedium?: string }).utmMedium ?? null,
+        utmCampaign: (order as { utmCampaign?: string }).utmCampaign ?? null,
+        discountCode: (order as { discountCode?: string }).discountCode ?? null,
+        discountAmount,
+        courierProvider: (order as { courierProvider?: string }).courierProvider ?? null,
+        courierStatus: (order as { courierStatus?: string }).courierStatus ?? null,
+        courierSentAt: courierSentAt ?? null,
+        createdAt,
         items: { create: itemsData },
       },
     });
@@ -401,6 +1033,36 @@ async function main() {
     await prisma.complaint.create({ data: c });
   }
   console.log(`✓ Seeded ${sampleComplaints.length} complaints`);
+
+  // Coupons
+  for (const c of sampleCoupons) {
+    await prisma.coupon.create({ data: c });
+  }
+  console.log(`✓ Seeded ${sampleCoupons.length} coupons`);
+
+  // Page Views
+  const pageViews = generatePageViews();
+  await prisma.pageView.createMany({ data: pageViews });
+  console.log(`✓ Seeded ${pageViews.length} page views across ~300 sessions`);
+
+  // Site Settings (marketing, social, banner defaults)
+  const settings = [
+    { key: "facebook", value: "https://facebook.com/alamirat" },
+    { key: "instagram", value: "https://instagram.com/alamirat" },
+    { key: "whatsapp", value: "8801712345678" },
+    { key: "banner_enabled", value: "true" },
+    { key: "banner_text", value: "Free shipping on orders over ৳2,000!" },
+    { key: "banner_link", value: "/products" },
+    { key: "banner_bg_color", value: "#1a1a2e" },
+  ];
+  for (const s of settings) {
+    await prisma.siteSetting.upsert({
+      where: { key: s.key },
+      update: { value: s.value },
+      create: s,
+    });
+  }
+  console.log(`✓ Seeded site settings`);
 
   console.log("✅ Done");
 }

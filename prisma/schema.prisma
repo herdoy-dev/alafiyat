@@ -104,6 +104,13 @@ model Purchase {
   shippingAddress String
   shippingCity    String
   notes           String?
+  discountCode    String?
+  discountAmount  Int            @default(0)
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmContent      String?
+  utmTerm         String?
   courierProvider      String?
   courierConsignmentId String?
   courierTrackingCode  String?
@@ -148,6 +155,47 @@ model SiteSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  type      String    // "percentage" | "fixed"
+  value     Int
+  minOrder  Int       @default(0)
+  maxUses   Int?
+  usedCount Int       @default(0)
+  active    Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([code])
+  @@index([active])
+}
+
+model PageView {
+  id          String   @id @default(cuid())
+  sessionId   String
+  page        String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+  userAgent   String?
+  country     String?
+  city        String?
+  ip          String?
+  device      String?
+  browser     String?
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([utmSource])
+  @@index([page])
 }
 
 model LoginEvent {
