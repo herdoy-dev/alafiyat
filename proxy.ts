@@ -9,7 +9,7 @@ const UTM_PARAMS = [
   "utm_term",
 ] as const;
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const hasUtm = UTM_PARAMS.some((p) => url.searchParams.has(p));
 
