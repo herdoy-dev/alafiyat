@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { purchaseSchema } from "@/schemas/purchase";
 import { validationError } from "@/lib/api-utils";
+import { trackServerPurchase } from "@/lib/facebook-capi";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const parsed = purchaseSchema.safeParse(body);
@@ -119,6 +120,29 @@ export async function POST(request: Request) {
       },
       include: { items: true },
     });
+
+    // Facebook Conversions API: send Purchase event server-side (fire-and-forget)
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      null;
+    const userAgent = request.headers.get("user-agent") || null;
+    const fbc = request.cookies.get("_fbc")?.value || null;
+    const fbp = request.cookies.get("_fbp")?.value || null;
+    const referer = request.headers.get("referer") || undefined;
+
+    trackServerPurchase({
+      orderId: purchase.id,
+      value: finalAmount,
+      email: customerEmail,
+      phone: parsed.data.shippingPhone,
+      city: parsed.data.shippingCity,
+      ip,
+      userAgent,
+      fbc,
+      fbp,
+      sourceUrl: referer,
+    }).catch(() => {});
 
     return NextResponse.json({ purchase });
   } catch (error) {

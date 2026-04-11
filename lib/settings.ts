@@ -76,6 +76,7 @@ export const COURIER_DEFAULTS: Partial<CourierConfig> = {
 
 export const MARKETING_KEYS = [
   "marketing_facebook_pixel_id",
+  "marketing_facebook_capi_token",
   "marketing_ga4_measurement_id",
   "marketing_tiktok_pixel_id",
   "marketing_gtm_container_id",
@@ -87,6 +88,7 @@ export type MarketingConfig = Record<MarketingKey, string>;
 
 export const EMPTY_MARKETING: MarketingConfig = {
   marketing_facebook_pixel_id: "",
+  marketing_facebook_capi_token: "",
   marketing_ga4_measurement_id: "",
   marketing_tiktok_pixel_id: "",
   marketing_gtm_container_id: "",

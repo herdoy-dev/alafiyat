@@ -37,6 +37,15 @@ const pixelCards: PixelCard[] = [
     helpText: "Find this in Meta Events Manager → Data sources → your pixel.",
   },
   {
+    key: "marketing_facebook_capi_token",
+    title: "Facebook Conversions API",
+    description:
+      "Server-side event tracking that bypasses ad blockers. Sends Purchase, PageView, and ViewContent events directly to Facebook servers for better ad optimization and attribution.",
+    placeholder: "e.g. EAAxxxxxxxxx...",
+    helpText:
+      "Generate a token in Meta Events Manager → Settings → Conversions API → Generate access token. Requires the Pixel ID above to be set.",
+  },
+  {
     key: "marketing_ga4_measurement_id",
     title: "Google Analytics 4",
     description:

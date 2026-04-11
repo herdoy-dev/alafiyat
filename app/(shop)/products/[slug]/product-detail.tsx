@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/stores/cart";
 import { cn } from "@/lib/utils";
+import { trackAllViewContent, trackAllAddToCart } from "@/lib/tracking";
 
 type Product = {
   id: string;
@@ -35,6 +36,10 @@ export function ProductDetail({ product }: { product: Product }) {
   const gallery = [product.thumbnail, ...product.images].filter(Boolean);
   const [activeImage, setActiveImage] = useState(gallery[0] ?? "");
   const inStock = product.stock > 0;
+
+  useEffect(() => {
+    trackAllViewContent(product.id, product.name, product.price);
+  }, [product.id, product.name, product.price]);
 
   const imageRef = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState(false);
@@ -64,6 +69,7 @@ export function ProductDetail({ product }: { product: Product }) {
       },
       quantity
     );
+    trackAllAddToCart(product.id, product.name, product.price, quantity);
     toast.success(`Added ${product.name} to cart`);
   }
 

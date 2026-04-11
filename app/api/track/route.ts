@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+import { trackServerPageView } from "@/lib/facebook-capi";
 
 function parseDevice(ua: string): string {
   if (/tablet|ipad/i.test(ua)) return "tablet";
@@ -67,6 +68,17 @@ export async function POST(request: NextRequest) {
         city: null,
       },
     });
+
+    // Facebook CAPI: send PageView server-side (fire-and-forget)
+    const fbc = request.cookies.get("_fbc")?.value || null;
+    const fbp = request.cookies.get("_fbp")?.value || null;
+    trackServerPageView({
+      page,
+      ip,
+      userAgent: ua,
+      fbc,
+      fbp,
+    }).catch(() => {});
 
     return new Response(null, { status: 204 });
   } catch {
