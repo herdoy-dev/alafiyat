@@ -9,6 +9,7 @@ import { GoogleTagManager } from "@/components/marketing/google-tag-manager";
 import { PageTracker } from "@/components/marketing/page-tracker";
 import { AnnouncementBar } from "@/components/storefront/announcement-bar";
 import { WhatsAppButton } from "@/components/storefront/whatsapp-button";
+import { CustomerAuthProvider } from "@/components/providers/customer-auth-provider";
 import { MARKETING_KEYS, BANNER_KEYS } from "@/lib/settings";
 
 async function getLayoutSettings() {
@@ -41,24 +42,26 @@ export default async function ShopLayout({
   const s = await getLayoutSettings();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <FacebookPixel pixelId={s.fbPixelId} />
-      <GoogleAnalytics measurementId={s.ga4Id} />
-      <TikTokPixel pixelId={s.tiktokPixelId} />
-      <GoogleTagManager containerId={s.gtmId} />
-      <PageTracker />
-      {s.bannerEnabled && (
-        <AnnouncementBar
-          text={s.bannerText}
-          link={s.bannerLink}
-          bgColor={s.bannerBgColor}
-        />
-      )}
-      <StorefrontNav />
-      <main className="flex-1">{children}</main>
-      <Footer />
-      {s.whatsapp && <WhatsAppButton phoneNumber={s.whatsapp} />}
-      <ChatWidget />
-    </div>
+    <CustomerAuthProvider>
+      <div className="flex min-h-screen flex-col">
+        <FacebookPixel pixelId={s.fbPixelId} />
+        <GoogleAnalytics measurementId={s.ga4Id} />
+        <TikTokPixel pixelId={s.tiktokPixelId} />
+        <GoogleTagManager containerId={s.gtmId} />
+        <PageTracker />
+        {s.bannerEnabled && (
+          <AnnouncementBar
+            text={s.bannerText}
+            link={s.bannerLink}
+            bgColor={s.bannerBgColor}
+          />
+        )}
+        <StorefrontNav />
+        <main className="flex-1">{children}</main>
+        <Footer />
+        {s.whatsapp && <WhatsAppButton phoneNumber={s.whatsapp} />}
+        <ChatWidget />
+      </div>
+    </CustomerAuthProvider>
   );
 }

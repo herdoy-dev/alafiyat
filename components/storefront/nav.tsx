@@ -4,23 +4,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, Menu } from "lucide-react";
+import { ShoppingBag, Menu, Search, Heart } from "lucide-react";
 import { useCart } from "@/lib/stores/cart";
+import { useWishlist } from "@/lib/stores/wishlist";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { SearchDialog } from "./search-dialog";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { label: "Shop", href: "/products" },
+  { label: "FAQ", href: "/faq" },
   { label: "Complaints", href: "/complain" },
 ];
 
 export function StorefrontNav() {
   const items = useCart((s) => s.items);
+  const wishlistCount = useWishlist((s) => s.count);
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
@@ -30,9 +35,22 @@ export function StorefrontNav() {
     setMobileOpen(false);
   }, [pathname]);
 
+  // Ctrl+K to open search
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const cartCount = mounted
     ? items.reduce((sum, i) => sum + i.quantity, 0)
     : 0;
+  const wCount = mounted ? wishlistCount() : 0;
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -93,7 +111,40 @@ export function StorefrontNav() {
 
           {/* Right cluster */}
           <div className="flex items-center gap-1 md:gap-2">
+            {/* Search */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search products"
+            >
+              <Search className="h-[18px] w-[18px]" />
+            </Button>
+
             <ThemeToggle />
+
+            {/* Wishlist */}
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="relative h-10 w-10"
+            >
+              <Link href="/wishlist" aria-label="View wishlist">
+                <Heart className="h-[18px] w-[18px]" />
+                {wCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="absolute -top-0.5 -right-0.5 h-5 min-w-5 rounded-full px-1 text-[10px] font-semibold tabular-nums"
+                  >
+                    {wCount}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+
+            {/* Cart */}
             <Button
               variant="ghost"
               size="icon"
@@ -115,6 +166,9 @@ export function StorefrontNav() {
           </div>
         </div>
       </header>
+
+      {/* Search overlay */}
+      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -152,6 +206,25 @@ export function StorefrontNav() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/wishlist"
+                className={cn(
+                  "flex items-center justify-between rounded-lg px-3 py-2.5 font-display text-lg tracking-tight transition-colors",
+                  isActive("/wishlist")
+                    ? "bg-primary/5 text-primary"
+                    : "text-foreground/80 hover:bg-muted"
+                )}
+              >
+                <span>Wishlist</span>
+                {wCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="rounded-full px-2 text-[10px] tabular-nums"
+                  >
+                    {wCount}
+                  </Badge>
+                )}
+              </Link>
               <Link
                 href="/cart"
                 className={cn(

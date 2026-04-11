@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Heart } from "lucide-react";
+import { useWishlist } from "@/lib/stores/wishlist";
 
 export type StoreProduct = {
   id: string;
@@ -15,6 +17,24 @@ export type StoreProduct = {
 
 export function ProductCard({ product }: { product: StoreProduct }) {
   const outOfStock = product.stock === 0;
+  const { has, add, remove } = useWishlist();
+  const inWishlist = has(product.id);
+
+  function toggleWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inWishlist) {
+      remove(product.id);
+    } else {
+      add({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        image: product.thumbnail,
+      });
+    }
+  }
 
   return (
     <Link
@@ -51,6 +71,22 @@ export function ProductCard({ product }: { product: StoreProduct }) {
             </span>
           </div>
         )}
+
+        {/* Wishlist heart */}
+        <button
+          onClick={toggleWishlist}
+          className="absolute right-3 top-3 rounded-full bg-background/90 p-1.5 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 hover:scale-110 md:opacity-0"
+          style={{ opacity: inWishlist ? 1 : undefined }}
+          aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart
+            className={`h-4 w-4 transition-colors ${
+              inWishlist
+                ? "fill-red-500 text-red-500"
+                : "text-muted-foreground"
+            }`}
+          />
+        </button>
       </div>
 
       <div className="mt-3 flex items-start justify-between gap-2 px-1">

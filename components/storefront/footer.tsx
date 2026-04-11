@@ -164,6 +164,30 @@ export async function Footer() {
                   Your cart
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/wishlist"
+                  className="text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  Wishlist
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/faq"
+                  className="text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/track"
+                  className="text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  Track order
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

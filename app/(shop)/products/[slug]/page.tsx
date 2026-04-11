@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { ProductDetail } from "./product-detail";
 import { ProductJsonLd } from "@/components/seo/product-json-ld";
+import { RelatedProducts } from "@/components/storefront/related-products";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,20 @@ async function getDomain() {
   });
   const d = row?.value || "https://example.com";
   return d.startsWith("http") ? d : `https://${d}`;
+}
+
+async function getRelatedProducts(productId: string, categoryId: string | null) {
+  if (!categoryId) return [];
+  return prisma.product.findMany({
+    where: {
+      categoryId,
+      id: { not: productId },
+      stock: { gt: 0 },
+    },
+    take: 4,
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function generateMetadata({
@@ -64,10 +79,18 @@ export default async function ProductPage({
   ]);
   if (!product) notFound();
 
+  const relatedProducts = await getRelatedProducts(
+    product.id,
+    product.categoryId
+  );
+
   return (
     <>
       <ProductJsonLd product={product} domain={domain} />
       <ProductDetail product={product} />
+      <div className="container mx-auto max-w-6xl px-4 md:px-8 pb-16">
+        <RelatedProducts products={relatedProducts} />
+      </div>
     </>
   );
 }

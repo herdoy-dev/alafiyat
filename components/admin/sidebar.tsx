@@ -20,6 +20,8 @@ import {
   LogOut,
   BarChart3,
   Ticket,
+  Star,
+  ScrollText,
 } from "lucide-react";
 
 type NavItem = {
@@ -55,6 +57,7 @@ const navGroups: NavGroup[] = [
       { label: "Orders", href: "/admin/purchases", icon: ShoppingCart },
       { label: "Customers", href: "/admin/customers", icon: UserRound },
       { label: "Coupons", href: "/admin/coupons", icon: Ticket },
+      { label: "Reviews", href: "/admin/reviews", icon: Star },
     ],
   },
   {
@@ -70,7 +73,10 @@ const navGroups: NavGroup[] = [
   },
   {
     label: "System",
-    items: [{ label: "Settings", href: "/admin/settings", icon: Settings }],
+    items: [
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+      { label: "Activity", href: "/admin/activity", icon: ScrollText },
+    ],
   },
 ];
 

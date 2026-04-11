@@ -16,6 +16,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/stores/cart";
 import { cn } from "@/lib/utils";
 import { trackAllViewContent, trackAllAddToCart } from "@/lib/tracking";
+import { useRecentlyViewed } from "@/lib/stores/recently-viewed";
+import { ShareButtons } from "@/components/storefront/share-buttons";
+import { RecentlyViewedSection } from "@/components/storefront/recently-viewed-section";
+import { ProductReviews } from "@/components/storefront/product-reviews";
 
 type Product = {
   id: string;
@@ -37,9 +41,18 @@ export function ProductDetail({ product }: { product: Product }) {
   const [activeImage, setActiveImage] = useState(gallery[0] ?? "");
   const inStock = product.stock > 0;
 
+  const addViewed = useRecentlyViewed((s) => s.addViewed);
+
   useEffect(() => {
     trackAllViewContent(product.id, product.name, product.price);
-  }, [product.id, product.name, product.price]);
+    addViewed({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: product.thumbnail,
+    });
+  }, [product.id, product.name, product.slug, product.price, product.thumbnail, addViewed]);
 
   const imageRef = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState(false);
@@ -249,6 +262,12 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
               )}
             </dl>
+
+            {/* Share */}
+            <ShareButtons
+              url={typeof window !== "undefined" ? window.location.href : `/products/${product.slug}`}
+              title={product.name}
+            />
           </div>
         </div>
       </div>
@@ -266,6 +285,12 @@ export function ProductDetail({ product }: { product: Product }) {
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       </div>
+
+      {/* Reviews */}
+      <ProductReviews productId={product.id} />
+
+      {/* Recently viewed */}
+      <RecentlyViewedSection excludeId={product.id} />
     </div>
   );
 }
