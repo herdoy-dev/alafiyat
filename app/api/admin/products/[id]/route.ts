@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getAdminUser } from "@/lib/auth";
 import { updateProductSchema } from "@/schemas/product";
 import { validationError } from "@/lib/api-utils";
+import { logAction } from "@/lib/audit";
 
 export async function PATCH(
   request: Request,
@@ -25,6 +26,7 @@ export async function PATCH(
       where: { id },
       data: parsed.data,
     });
+    logAction(admin.id, "product.update", "Product", id, { name: product.name }).catch(() => {});
     return NextResponse.json({ product });
   } catch {
     return NextResponse.json(
@@ -46,6 +48,7 @@ export async function DELETE(
 
     const { id } = await params;
     await prisma.product.delete({ where: { id } });
+    logAction(admin.id, "product.delete", "Product", id).catch(() => {});
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

@@ -12,7 +12,9 @@ import {
   Tag,
   X,
   Loader2,
+  MapPin,
 } from "lucide-react";
+import { useCustomerAuth } from "@/components/providers/customer-auth-provider";
 import { useCart } from "@/lib/stores/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,11 +57,23 @@ function getUtmFromCookie(): Record<string, string> {
   }
 }
 
+type SavedAddress = {
+  id: string;
+  label: string;
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  isDefault: boolean;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, clear } = useCart();
+  const { customer } = useCustomerAuth();
   const [mounted, setMounted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
@@ -84,6 +98,39 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => setMounted(true), []);
+
+  // Auto-fill from customer profile + load saved addresses
+  useEffect(() => {
+    if (!customer) return;
+    setForm((prev) => ({
+      ...prev,
+      customerEmail: prev.customerEmail || customer.email || "",
+      shippingName: prev.shippingName || customer.fullName,
+      shippingPhone: prev.shippingPhone || customer.phone,
+      shippingAddress: prev.shippingAddress || customer.address,
+      shippingCity: prev.shippingCity || customer.city,
+    }));
+    // Fetch saved addresses
+    fetch("/api/customer/addresses")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.addresses) {
+          setSavedAddresses(data.addresses);
+          // Auto-select default address
+          const defaultAddr = data.addresses.find((a: SavedAddress) => a.isDefault);
+          if (defaultAddr) {
+            setForm((prev) => ({
+              ...prev,
+              shippingName: prev.shippingName || defaultAddr.fullName,
+              shippingPhone: prev.shippingPhone || defaultAddr.phone,
+              shippingAddress: prev.shippingAddress || defaultAddr.address,
+              shippingCity: prev.shippingCity || defaultAddr.city,
+            }));
+          }
+        }
+      })
+      .catch(() => {});
+  }, [customer]);
 
   if (!mounted) return null;
 
@@ -197,6 +244,48 @@ export default function CheckoutPage() {
             <h2 className="mt-1 font-display text-2xl tracking-tight md:text-3xl">
               Where to?
             </h2>
+
+            {/* Saved addresses */}
+            {savedAddresses.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <MapPin className="mr-1 inline h-3 w-3" />
+                  Saved addresses
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {savedAddresses.map((addr) => (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          shippingName: addr.fullName,
+                          shippingPhone: addr.phone,
+                          shippingAddress: addr.address,
+                          shippingCity: addr.city,
+                        }))
+                      }
+                      className="rounded-xl border border-border/70 bg-card px-3 py-2 text-left text-sm transition-colors hover:border-primary/40 hover:bg-primary/5"
+                    >
+                      <span className="font-medium">{addr.label}</span>
+                      <span className="ml-2 text-muted-foreground">
+                        {addr.city}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!customer && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                <Link href="/account/login" className="text-primary hover:underline">
+                  Sign in
+                </Link>{" "}
+                for faster checkout with saved addresses.
+              </p>
+            )}
 
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">

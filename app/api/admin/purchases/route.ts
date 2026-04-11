@@ -9,6 +9,7 @@ import {
   reopenPurchase,
   unapprovePurchase,
 } from "@/services/purchases";
+import { logAction } from "@/lib/audit";
 
 export async function GET(request: Request) {
   try {
@@ -109,6 +110,14 @@ export async function PATCH(request: Request) {
       } else {
         updated = await reopenPurchase(purchaseId);
       }
+    }
+
+    // Audit log
+    if (status !== current.status) {
+      logAction(admin.id, `order.status_${status}`, "Purchase", purchaseId, {
+        from: current.status,
+        to: status,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ purchase: updated });

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getAdminUser } from "@/lib/auth";
 import { productSchema } from "@/schemas/product";
 import { validationError } from "@/lib/api-utils";
+import { logAction } from "@/lib/audit";
 
 export async function GET(request: Request) {
   try {
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
     }
 
     const product = await prisma.product.create({ data: parsed.data });
+    logAction(admin.id, "product.create", "Product", product.id, { name: product.name }).catch(() => {});
     return NextResponse.json({ product });
   } catch {
     return NextResponse.json(

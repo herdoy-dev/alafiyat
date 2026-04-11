@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 export type ProductFormValues = {
   name: string;
@@ -250,32 +251,14 @@ export function ProductForm({
               <CardTitle>Thumbnail</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid gap-2">
-                <Label htmlFor="thumbnail">Thumbnail URL</Label>
-                <Input
-                  id="thumbnail"
-                  required
-                  placeholder="https://…"
-                  value={form.thumbnail}
-                  onChange={(e) =>
-                    setForm({ ...form, thumbnail: e.target.value })
-                  }
-                />
-                <p className="text-xs text-muted-foreground">
-                  Used in lists, cards, cart, and as the first gallery image.
-                </p>
-              </div>
-              {form.thumbnail && (
-                <div className="relative aspect-square w-full overflow-hidden rounded-md border bg-muted">
-                  <Image
-                    src={form.thumbnail}
-                    alt="Preview"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              )}
+              <ImageUpload
+                label="Product thumbnail"
+                value={form.thumbnail}
+                onChange={(url) => setForm({ ...form, thumbnail: url })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Used in lists, cards, cart, and as the first gallery image.
+              </p>
             </CardContent>
           </Card>
 
@@ -288,43 +271,31 @@ export function ProductForm({
                 Additional images shown on the product detail page.
               </p>
               {form.images.map((url, idx) => (
-                <div key={idx} className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://…"
+                <div key={idx} className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <ImageUpload
                       value={url}
-                      onChange={(e) => {
+                      onChange={(newUrl) => {
                         const next = [...form.images];
-                        next[idx] = e.target.value;
+                        next[idx] = newUrl;
                         setForm({ ...form, images: next });
                       }}
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 text-destructive"
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          images: form.images.filter((_, i) => i !== idx),
-                        })
-                      }
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
-                  {url && (
-                    <div className="relative aspect-square w-20 overflow-hidden rounded border bg-muted">
-                      <Image
-                        src={url}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 text-destructive mt-7"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        images: form.images.filter((_, i) => i !== idx),
+                      })
+                    }
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
               <Button
