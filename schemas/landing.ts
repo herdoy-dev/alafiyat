@@ -12,6 +12,11 @@ export const LANDING_TEMPLATES = [
   "retro",
   "split",
   "urban",
+  "herbal",
+  "matcha",
+  "brew",
+  "garden",
+  "wellness",
 ] as const;
 
 export type LandingTemplate = (typeof LANDING_TEMPLATES)[number];
@@ -172,5 +177,30 @@ export const TEMPLATE_META: Record<
     name: "Urban",
     description: "Streetwear brutalist with orange accents and numbered sections",
     tone: "Streetwear, sneakers, limited drops",
+  },
+  herbal: {
+    name: "Herbal",
+    description: "Sage green and cream with botanical gentle curves",
+    tone: "Herbal teas, infusions, wellness blends",
+  },
+  matcha: {
+    name: "Matcha",
+    description: "Japanese-inspired minimalism with circular elements",
+    tone: "Green tea, matcha, oolong",
+  },
+  brew: {
+    name: "Brew",
+    description: "Warm coffee browns and caramels, cozy cafe vibes",
+    tone: "Coffee, chai, masala tea, warm beverages",
+  },
+  garden: {
+    name: "Garden",
+    description: "Watercolor pastels with floral and botanical feel",
+    tone: "Flower teas, fruit infusions, delicate blends",
+  },
+  wellness: {
+    name: "Wellness",
+    description: "Clean whites with pale mint, clinical yet warm",
+    tone: "Detox teas, wellness blends, health products",
   },
 };

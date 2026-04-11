@@ -9,6 +9,11 @@ import { NatureTemplate } from "@/components/landing/templates/nature";
 import { RetroTemplate } from "@/components/landing/templates/retro";
 import { SplitTemplate } from "@/components/landing/templates/split";
 import { UrbanTemplate } from "@/components/landing/templates/urban";
+import { HerbalTemplate } from "@/components/landing/templates/herbal";
+import { MatchaTemplate } from "@/components/landing/templates/matcha";
+import { BrewTemplate } from "@/components/landing/templates/brew";
+import { GardenTemplate } from "@/components/landing/templates/garden";
+import { WellnessTemplate } from "@/components/landing/templates/wellness";
 import type { TemplateProps } from "@/components/landing/templates/types";
 import type { LandingTemplate } from "@/schemas/landing";
 
@@ -27,4 +32,9 @@ export const TEMPLATE_COMPONENTS: Record<
   retro: RetroTemplate,
   split: SplitTemplate,
   urban: UrbanTemplate,
+  herbal: HerbalTemplate,
+  matcha: MatchaTemplate,
+  brew: BrewTemplate,
+  garden: GardenTemplate,
+  wellness: WellnessTemplate,
 };

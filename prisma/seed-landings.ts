@@ -993,6 +993,469 @@ const SEEDS: LandingSeed[] = [
       ],
     },
   },
+  // ═══════════════════════════════════════════════════════════════
+  // TEA & NATURAL BEVERAGE TEMPLATES
+  // ═══════════════════════════════════════════════════════════════
+  {
+    slug: "demo-herbal",
+    title: "Herbal — wellness tea blend",
+    template: "herbal",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    content: {
+      ...EMPTY_LANDING_CONTENT,
+      hero: {
+        eyebrow: "Hand-picked · Small batch",
+        headline: "The herbs that heal",
+        subheadline:
+          "A gentle blend of chamomile, lemon balm, and lavender. Steeped slowly. Sipped mindfully. Made to restore.",
+        ctaLabel: "Order yours",
+        badge: "Caffeine-free",
+      },
+      benefits: [
+        {
+          icon: "",
+          title: "Calms the mind",
+          body: "Chamomile and lemon balm work together to ease tension and quiet racing thoughts.",
+        },
+        {
+          icon: "",
+          title: "Soothes digestion",
+          body: "Peppermint and fennel gently support the stomach after every meal.",
+        },
+        {
+          icon: "",
+          title: "Promotes rest",
+          body: "Lavender and passionflower help you drift into a deeper, more restful sleep.",
+        },
+      ],
+      highlights: [
+        {
+          title: "Grown without shortcuts",
+          body: "Every herb in this blend comes from family farms that practice organic agriculture. No pesticides, no chemicals, just pure plants grown the way they used to be.",
+          image:
+            "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=900",
+        },
+        {
+          title: "Blended by hand",
+          body: "We don't automate this. Every batch is mixed by hand in small quantities, so each pouch tastes the way we want it to — balanced, bright, and complete.",
+          image:
+            "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=900",
+        },
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=600",
+        "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600",
+        "https://images.unsplash.com/photo-1563822249366-3efb23b8e0c9?w=600",
+      ],
+      testimonials: [
+        {
+          name: "Rabeya K.",
+          location: "Dhaka",
+          quote:
+            "I drink it every night before bed. I haven't slept this well in years. Honestly life-changing.",
+          rating: 5,
+        },
+        {
+          name: "Saif A.",
+          location: "Chittagong",
+          quote:
+            "Tastes like the tea my grandmother used to make. That's the highest compliment I can give.",
+          rating: 5,
+        },
+        {
+          name: "Nusrat J.",
+          location: "Sylhet",
+          quote:
+            "Calms me down after stressful days at work. Worth every taka.",
+          rating: 5,
+        },
+      ],
+      faq: commonFaq(),
+      finalCta: {
+        headline: "One cup. Every evening.",
+        subheadline:
+          "That's all it takes. Order now and feel the difference within a week.",
+        ctaLabel: "Start tonight",
+      },
+      orderForm: {
+        title: "Order your blend",
+        subtitle: "We'll confirm by phone before dispatch.",
+      },
+      trustBadges: [
+        "100% natural herbs",
+        "Caffeine-free",
+        "Cash on delivery",
+        "Free shipping over ৳2,000",
+      ],
+    },
+  },
+  {
+    slug: "demo-matcha",
+    title: "Matcha — ceremonial grade green tea",
+    template: "matcha",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    content: {
+      ...EMPTY_LANDING_CONTENT,
+      hero: {
+        eyebrow: "Ceremonial grade",
+        headline: "The stillness of green",
+        subheadline:
+          "Stone-ground shade-grown matcha, whisked by hand into a perfect ceremonial bowl. The Japanese way, delivered to your door.",
+        ctaLabel: "Order matcha",
+        badge: "Grade A",
+      },
+      benefits: [
+        {
+          icon: "",
+          title: "Clean energy, all day",
+          body: "L-theanine and gentle caffeine deliver 4-6 hours of calm focus without the crash.",
+        },
+        {
+          icon: "",
+          title: "137× the antioxidants",
+          body: "Compared to regular green tea — nutrient density you can actually taste in every sip.",
+        },
+        {
+          icon: "",
+          title: "Stone-ground slowly",
+          body: "Each stone wheel turns just 30g per hour. This is why the flavor is so complete.",
+        },
+      ],
+      highlights: [
+        {
+          title: "From Uji, Japan",
+          body: "Our matcha comes from the same region that has been producing Japan's finest tea for over 800 years. The terroir here makes all the difference.",
+          image:
+            "https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?w=900",
+        },
+        {
+          title: "The ritual matters",
+          body: "Matcha isn't meant to be rushed. The whisking, the sipping, the pause — that's where the real benefit lives. We include a bamboo whisk with every first order.",
+          image:
+            "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=900",
+        },
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?w=600",
+        "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=600",
+        "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600",
+        "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=600",
+      ],
+      testimonials: [
+        {
+          name: "Ayesha M.",
+          location: "Dhaka",
+          quote:
+            "I replaced my morning coffee with this and I've never looked back. No more afternoon crashes.",
+          rating: 5,
+        },
+        {
+          name: "Fahim R.",
+          location: "Chittagong",
+          quote:
+            "The color, the texture, the flavor — everything is exactly what proper matcha should be.",
+          rating: 5,
+        },
+      ],
+      faq: commonFaq(),
+      finalCta: {
+        headline: "Begin the ritual",
+        subheadline:
+          "Your daily pause. Your moment of stillness. Order now and start tomorrow.",
+        ctaLabel: "Order now",
+      },
+      orderForm: {
+        title: "Place your order",
+        subtitle: "First-time buyers receive a bamboo whisk free.",
+      },
+      trustBadges: [
+        "Ceremonial grade",
+        "From Uji, Japan",
+        "Cash on delivery",
+        "Free whisk included",
+      ],
+    },
+  },
+  {
+    slug: "demo-brew",
+    title: "Brew — single-origin coffee",
+    template: "brew",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    content: {
+      ...EMPTY_LANDING_CONTENT,
+      hero: {
+        eyebrow: "Single origin · Small roast",
+        headline: "The brew that wakes you up",
+        subheadline:
+          "Hand-roasted beans from the mountains of Ethiopia. Bright, full-bodied, and bold enough to get you out of bed.",
+        ctaLabel: "Order now",
+        badge: "Fresh roast",
+      },
+      benefits: [
+        {
+          icon: "",
+          title: "Roasted to order",
+          body: "We don't ship anything roasted more than 7 days ago. Freshness you can taste in the first sip.",
+        },
+        {
+          icon: "",
+          title: "Bright and complex",
+          body: "Notes of dark chocolate, cherry, and a finish that lingers. Not your average cup.",
+        },
+        {
+          icon: "",
+          title: "Ethically sourced",
+          body: "Direct trade with farmers we know by name. They get paid fairly. You get incredible coffee.",
+        },
+      ],
+      highlights: [
+        {
+          title: "Grown at 2,000m",
+          body: "High altitude means slower growth and denser beans. Every farmer in this village has been growing this variety for three generations.",
+          image:
+            "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=900",
+        },
+        {
+          title: "Roasted in small batches",
+          body: "We roast in 5kg lots over open flame, cupping every batch before it ships. If it doesn't hit the notes we want, we start over.",
+          image:
+            "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900",
+        },
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600",
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600",
+        "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600",
+        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600",
+      ],
+      testimonials: [
+        {
+          name: "Tahmid H.",
+          location: "Dhaka",
+          quote:
+            "I've been buying coffee for 15 years. This is hands down the best I've had in Bangladesh.",
+          rating: 5,
+        },
+        {
+          name: "Shabnam K.",
+          location: "Chittagong",
+          quote:
+            "Strong, smooth, and no bitterness. Exactly what I've been looking for.",
+          rating: 5,
+        },
+        {
+          name: "Imtiaz R.",
+          location: "Sylhet",
+          quote:
+            "The smell alone is worth the price. The taste is a bonus.",
+          rating: 5,
+        },
+      ],
+      faq: commonFaq(),
+      finalCta: {
+        headline: "Start your mornings right",
+        subheadline:
+          "Freshly roasted. Carefully packed. Delivered to your door within 48 hours.",
+        ctaLabel: "Order now",
+      },
+      orderForm: {
+        title: "Place your order",
+        subtitle: "Roasted within 48 hours of your order.",
+      },
+      trustBadges: [
+        "Fresh roast",
+        "Single origin",
+        "Cash on delivery",
+        "Nationwide shipping",
+      ],
+    },
+  },
+  {
+    slug: "demo-garden",
+    title: "Garden — floral blossom tea",
+    template: "garden",
+    content: {
+      ...EMPTY_LANDING_CONTENT,
+      hero: {
+        eyebrow: "Petal-picked blend",
+        headline: "A garden in every cup",
+        subheadline:
+          "Rose, jasmine, and hibiscus — all hand-picked, sun-dried, and blended into a tea that tastes like spring.",
+        ctaLabel: "Order yours",
+        badge: "New blend",
+      },
+      benefits: [
+        {
+          icon: "",
+          title: "Naturally sweet",
+          body: "No sugar needed. The flowers bring their own honey-like sweetness to every cup.",
+        },
+        {
+          icon: "",
+          title: "Full of antioxidants",
+          body: "Hibiscus is packed with vitamin C and flavonoids that your body will thank you for.",
+        },
+        {
+          icon: "",
+          title: "Caffeine-free",
+          body: "Drink it any time of day, any time of night. It's gentle enough for everyone.",
+        },
+      ],
+      highlights: [
+        {
+          title: "Picked at dawn",
+          body: "Our flowers are harvested in the cool early morning hours, when their essential oils are at their strongest. Every detail of this tea is deliberate.",
+          image:
+            "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=900",
+        },
+        {
+          title: "Sun-dried, never baked",
+          body: "We spread the petals on bamboo mats under the sun for three days. Slow, patient, and worth the wait.",
+          image:
+            "https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=900",
+        },
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=600",
+        "https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=600",
+        "https://images.unsplash.com/photo-1563822249366-3efb23b8e0c9?w=600",
+        "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600",
+      ],
+      testimonials: [
+        {
+          name: "Sumaiya A.",
+          location: "Dhaka",
+          quote:
+            "The smell alone is heavenly. It tastes like walking through a flower garden.",
+          rating: 5,
+        },
+        {
+          name: "Farhana R.",
+          location: "Rajshahi",
+          quote:
+            "My new favorite afternoon tea. So delicate and beautiful.",
+          rating: 5,
+        },
+        {
+          name: "Tasnia K.",
+          location: "Khulna",
+          quote:
+            "It's become a daily ritual. I even got my mom hooked.",
+          rating: 5,
+        },
+      ],
+      faq: commonFaq(),
+      finalCta: {
+        headline: "A little bit of spring",
+        subheadline:
+          "Order your blend now. Made in small batches — stock is limited.",
+        ctaLabel: "Order now",
+      },
+      orderForm: {
+        title: "Place your order",
+        subtitle: "We confirm every order by phone.",
+      },
+      trustBadges: [
+        "Hand-picked flowers",
+        "Sun-dried",
+        "Caffeine-free",
+        "Cash on delivery",
+      ],
+    },
+  },
+  {
+    slug: "demo-wellness",
+    title: "Wellness — daily detox tea",
+    template: "wellness",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    content: {
+      ...EMPTY_LANDING_CONTENT,
+      hero: {
+        eyebrow: "14-day detox program",
+        headline: "Feel the difference in 7 days",
+        subheadline:
+          "A scientifically-formulated blend of green tea, dandelion, milk thistle, and ginger. Supports your body's natural detox pathways.",
+        ctaLabel: "Start my cleanse",
+        badge: "Nutritionist approved",
+      },
+      benefits: [
+        {
+          icon: "",
+          title: "Boosts metabolism",
+          body: "Green tea and ginger work together to naturally energize your body all day long.",
+        },
+        {
+          icon: "",
+          title: "Supports liver health",
+          body: "Milk thistle and dandelion root are the gold standard for natural liver support.",
+        },
+        {
+          icon: "",
+          title: "Reduces bloating",
+          body: "Feel lighter, cleaner, and more comfortable within just a few days of daily use.",
+        },
+      ],
+      highlights: [
+        {
+          title: "Clinically-studied ingredients",
+          body: "Every herb in this blend is backed by peer-reviewed research. No fads, no miracle claims — just ingredients that work.",
+          image:
+            "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=900",
+        },
+        {
+          title: "No laxatives, no junk",
+          body: "Unlike most detox teas on the market, ours contains zero senna or harsh stimulants. Just real herbs, the way nature intended.",
+          image:
+            "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=900",
+        },
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=600",
+        "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600",
+        "https://images.unsplash.com/photo-1563822249366-3efb23b8e0c9?w=600",
+      ],
+      testimonials: [
+        {
+          name: "Nadira H.",
+          location: "Dhaka",
+          quote:
+            "I felt lighter within 5 days. By day 10 I had more energy than I'd had in months.",
+          rating: 5,
+        },
+        {
+          name: "Rumana A.",
+          location: "Chittagong",
+          quote:
+            "I was skeptical but it actually works. My skin cleared up too, which was a surprise.",
+          rating: 5,
+        },
+        {
+          name: "Sabrina K.",
+          location: "Sylhet",
+          quote:
+            "No harsh side effects, just feel great. Already ordering my second box.",
+          rating: 5,
+        },
+      ],
+      faq: commonFaq(),
+      finalCta: {
+        headline: "Your reset starts today",
+        subheadline:
+          "14 days of tea bags. A natural cleanse. Visible results by day 7. Your best self, delivered.",
+        ctaLabel: "Start my program",
+      },
+      orderForm: {
+        title: "Begin your reset",
+        subtitle: "Orders dispatched within 24 hours.",
+      },
+      trustBadges: [
+        "No laxatives",
+        "Nutritionist approved",
+        "Money-back guarantee",
+        "Cash on delivery",
+      ],
+    },
+  },
 ];
 
 async function main() {
