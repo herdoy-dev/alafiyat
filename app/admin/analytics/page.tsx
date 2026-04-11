@@ -189,9 +189,7 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <LiveVisitorMap
-              apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
-            />
+            <LiveVisitorMap />
           </CardContent>
         </Card>
       </section>
