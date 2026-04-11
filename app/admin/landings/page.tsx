@@ -124,14 +124,17 @@ export default function AdminLandingsPage() {
                 key={landing.id}
                 className="group overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow hover:shadow-md"
               >
-                {/* Live landing preview via iframe, scaled down */}
-                <div className="relative h-[420px] overflow-hidden bg-muted">
+                {/* Full-height live landing preview via iframe, scaled down */}
+                <div
+                  className="relative w-full overflow-hidden bg-muted"
+                  style={{ height: "1600px" }}
+                >
                   <div
                     className="pointer-events-none absolute left-0 top-0"
                     style={{
                       width: "1280px",
-                      height: "1400px",
-                      transform: "scale(0.5)",
+                      height: "4000px",
+                      transform: "scale(0.4)",
                       transformOrigin: "top left",
                     }}
                   >
@@ -143,8 +146,6 @@ export default function AdminLandingsPage() {
                       sandbox="allow-same-origin allow-scripts"
                     />
                   </div>
-                  {/* Gradient fade at bottom */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card to-transparent" />
 
                   {/* Badges overlay */}
                   <div className="absolute left-4 top-4 z-10 flex gap-2">
