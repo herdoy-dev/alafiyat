@@ -15,6 +15,7 @@ import { TrafficSourcesChart } from "@/components/admin/charts/traffic-sources-c
 import { TopPagesChart } from "@/components/admin/charts/top-pages-chart";
 import { DeviceBreakdownChart } from "@/components/admin/charts/device-breakdown-chart";
 import { VisitorTimelineChart } from "@/components/admin/charts/visitor-timeline-chart";
+import { LiveVisitorMap } from "@/components/admin/live-visitor-map";
 import { LiveFeed } from "@/components/admin/charts/live-feed";
 
 type LiveView = {
@@ -177,6 +178,23 @@ export default function AnalyticsPage() {
           </div>
         ))}
       </div>
+
+      {/* Live visitor map */}
+      <section className="space-y-3">
+        <SectionLabel>Where visitors are right now</SectionLabel>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">
+              Live visitor map
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LiveVisitorMap
+              apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
+            />
+          </CardContent>
+        </Card>
+      </section>
 
       {/* Live feed + Timeline */}
       <section className="space-y-3">

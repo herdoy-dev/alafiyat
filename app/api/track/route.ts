@@ -17,6 +17,42 @@ function parseBrowser(ua: string): string {
   return "Other";
 }
 
+// Free IP geolocation via ip-api.com (no key, 45 req/min limit)
+async function geolocateIP(ip: string | null): Promise<{
+  country: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}> {
+  if (!ip || ip === "127.0.0.1" || ip === "::1" || ip.startsWith("192.168.") || ip.startsWith("10.")) {
+    // Local IP - fallback to Dhaka for development
+    return {
+      country: "Bangladesh",
+      city: "Dhaka",
+      latitude: 23.8103,
+      longitude: 90.4125,
+    };
+  }
+
+  try {
+    const res = await fetch(
+      `http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon`,
+      { signal: AbortSignal.timeout(2000) }
+    );
+    if (!res.ok) throw new Error("geo lookup failed");
+    const data = await res.json();
+    if (data.status !== "success") throw new Error("geo lookup failed");
+    return {
+      country: data.country || null,
+      city: data.city || null,
+      latitude: typeof data.lat === "number" ? data.lat : null,
+      longitude: typeof data.lon === "number" ? data.lon : null,
+    };
+  } catch {
+    return { country: null, city: null, latitude: null, longitude: null };
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -50,6 +86,14 @@ export async function POST(request: NextRequest) {
       } catch {}
     }
 
+    // Geolocate IP (fire-and-forget via Promise that doesn't block if slow)
+    const geo = await geolocateIP(ip).catch(() => ({
+      country: null,
+      city: null,
+      latitude: null,
+      longitude: null,
+    }));
+
     await prisma.pageView.create({
       data: {
         sessionId,
@@ -64,8 +108,10 @@ export async function POST(request: NextRequest) {
         device: parseDevice(ua),
         browser: parseBrowser(ua),
         ip,
-        country: null,
-        city: null,
+        country: geo.country,
+        city: geo.city,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
       },
     });
 

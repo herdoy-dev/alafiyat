@@ -818,17 +818,17 @@ function generatePageViews() {
 
   const devices = ["desktop", "mobile", "mobile", "mobile", "tablet"]; // mobile heavy
   const browsers = ["Chrome", "Safari", "Firefox", "Edge", "Samsung Internet"];
-  const cities = [
-    "Dhaka",
-    "Dhaka",
-    "Dhaka",
-    "Chittagong",
-    "Sylhet",
-    "Rajshahi",
-    "Khulna",
-    "Comilla",
-    "Gazipur",
-    "Narayanganj",
+  const citiesWithCoords: Array<{ city: string; lat: number; lng: number }> = [
+    { city: "Dhaka", lat: 23.8103, lng: 90.4125 },
+    { city: "Dhaka", lat: 23.8103, lng: 90.4125 },
+    { city: "Dhaka", lat: 23.8103, lng: 90.4125 },
+    { city: "Chittagong", lat: 22.3569, lng: 91.7832 },
+    { city: "Sylhet", lat: 24.8949, lng: 91.8687 },
+    { city: "Rajshahi", lat: 24.3745, lng: 88.6042 },
+    { city: "Khulna", lat: 22.8456, lng: 89.5403 },
+    { city: "Comilla", lat: 23.4607, lng: 91.1809 },
+    { city: "Gazipur", lat: 23.9999, lng: 90.4203 },
+    { city: "Narayanganj", lat: 23.6238, lng: 90.5 },
   ];
   const userAgents = [
     "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0",
@@ -851,17 +851,24 @@ function generatePageViews() {
     city: string;
     country: string;
     ip: string;
+    latitude: number;
+    longitude: number;
     createdAt: Date;
   }> = [];
 
-  // Generate ~300 sessions over the last 7 days with multiple page views each
+  // Generate ~300 sessions over the last 7 days with multiple page views each.
+  // Force the first 8 sessions to be within the last 15 minutes so the live map shows data.
   for (let s = 0; s < 300; s++) {
     const sessionId = `sess_${Date.now()}_${s}_${Math.random().toString(36).slice(2, 8)}`;
-    const sessionDaysAgo = Math.random() * 7;
+    const sessionDaysAgo = s < 8 ? (Math.random() * 12) / (24 * 60) : Math.random() * 7;
     const utm = pick(utmSources);
     const device = pick(devices);
     const browser = pick(browsers);
-    const city = pick(cities);
+    const cityData = pick(citiesWithCoords);
+    // Add small random jitter to coordinates so markers don't overlap
+    const city = cityData.city;
+    const latitude = cityData.lat + (Math.random() - 0.5) * 0.1;
+    const longitude = cityData.lng + (Math.random() - 0.5) * 0.1;
     const ua = pick(userAgents);
     const referrer = pick(referrers);
     const ip = `103.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
@@ -889,6 +896,8 @@ function generatePageViews() {
         city,
         country: "BD",
         ip,
+        latitude,
+        longitude,
         createdAt: viewTime,
       });
     }

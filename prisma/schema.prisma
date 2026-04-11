@@ -191,6 +191,8 @@ model PageView {
   country     String?
   city        String?
   ip          String?
+  latitude    Float?
+  longitude   Float?
   device      String?
   browser     String?
   createdAt   DateTime @default(now())
