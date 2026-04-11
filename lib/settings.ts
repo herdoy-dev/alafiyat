@@ -112,6 +112,20 @@ export const EMPTY_BANNER: BannerConfig = {
   banner_bg_color: "",
 };
 
+export const EMAIL_KEYS = [
+  "email_from_address",
+  "email_admin_notification",
+] as const;
+
+export type EmailKey = (typeof EMAIL_KEYS)[number];
+
+export type EmailConfig = Record<EmailKey, string>;
+
+export const EMPTY_EMAIL: EmailConfig = {
+  email_from_address: "",
+  email_admin_notification: "",
+};
+
 export const SITE_KEYS = ["site_domain"] as const;
 
 export type SiteKey = (typeof SITE_KEYS)[number];

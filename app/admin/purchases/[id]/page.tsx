@@ -128,6 +128,14 @@ export default async function OrderDetailsPage({
           {purchase.status === "approved" && !purchase.courierProvider && (
             <CourierActions purchaseId={purchase.id} />
           )}
+          <a
+            href={`/api/admin/purchases/${purchase.id}/invoice`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-md border border-border/70 bg-card px-3 py-2 text-sm font-medium hover:bg-muted/50 transition-colors"
+          >
+            Invoice
+          </a>
         </div>
       </div>
 

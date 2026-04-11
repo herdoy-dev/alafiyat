@@ -49,6 +49,8 @@ export async function GET() {
       courierSentCount,
       courierNotSentCount,
       revenueByProductRaw,
+      lowStockProducts,
+      outOfStockCount,
       utmBreakdownRaw,
     ] = await Promise.all([
       prisma.purchase.aggregate({
@@ -109,6 +111,15 @@ export async function GET() {
         orderBy: { _sum: { price: "desc" } },
         take: 5,
       }),
+      // Low stock products
+      prisma.product.findMany({
+        where: { stock: { gt: 0, lte: 5 } },
+        select: { id: true, name: true, slug: true, stock: true },
+        orderBy: { stock: "asc" },
+        take: 10,
+      }),
+      // Out of stock products count
+      prisma.product.count({ where: { stock: 0 } }),
       // UTM source breakdown
       prisma.purchase.groupBy({
         by: ["utmSource"],
@@ -224,6 +235,9 @@ export async function GET() {
         sent: courierSentCount,
         awaitingDispatch: courierNotSentCount,
       },
+      // Low stock
+      lowStockProducts,
+      outOfStockCount,
       // UTM breakdown
       utmBreakdown: utmBreakdownRaw.map((u) => ({
         source: u.utmSource!,

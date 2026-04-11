@@ -22,6 +22,7 @@ import {
   PackageCheck,
   PackageX,
   BarChart3,
+  AlertTriangle,
 } from "lucide-react";
 import { RevenueChart } from "@/components/admin/charts/revenue-chart";
 import { OrdersStatusChart } from "@/components/admin/charts/orders-status-chart";
@@ -58,6 +59,8 @@ type Stats = {
   courierByStatus: { status: string; count: number }[];
   courierSummary: { sent: number; awaitingDispatch: number };
   utmBreakdown: { source: string; count: number; revenue: number }[];
+  lowStockProducts: { id: string; name: string; slug: string; stock: number }[];
+  outOfStockCount: number;
 };
 
 export default function AdminHomePage() {
@@ -471,6 +474,48 @@ export default function AdminHomePage() {
           </Card>
         </div>
       </section>
+
+      {/* Low stock alerts */}
+      {!loading && stats && (stats.lowStockProducts.length > 0 || stats.outOfStockCount > 0) && (
+        <section className="space-y-3">
+          <SectionLabel>Stock alerts</SectionLabel>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                Inventory warnings
+                {stats.outOfStockCount > 0 && (
+                  <span className="rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 text-xs font-medium">
+                    {stats.outOfStockCount} out of stock
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats.lowStockProducts.length > 0 ? (
+                <div className="divide-y divide-border/50 text-sm">
+                  {stats.lowStockProducts.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between py-2.5">
+                      <span className="font-medium">{p.name}</span>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        p.stock <= 2
+                          ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                          : "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                      }`}>
+                        {p.stock} left
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  All products have healthy stock levels.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       {/* Orders count + Products by category */}
       <section className="space-y-3">

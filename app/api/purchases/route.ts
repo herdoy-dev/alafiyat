@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { purchaseSchema } from "@/schemas/purchase";
 import { validationError } from "@/lib/api-utils";
 import { trackServerPurchase } from "@/lib/facebook-capi";
+import { sendOrderConfirmation, sendAdminNewOrderNotification } from "@/lib/email";
+import { getCurrentCustomer } from "@/lib/customer-auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,6 +122,34 @@ export async function POST(request: NextRequest) {
       },
       include: { items: true },
     });
+
+    // Link purchase to authenticated customer if logged in
+    const authCustomer = await getCurrentCustomer().catch(() => null);
+    if (authCustomer && purchase.customerId !== authCustomer.id) {
+      await prisma.purchase.update({
+        where: { id: purchase.id },
+        data: { customerId: authCustomer.id },
+      }).catch(() => {});
+    }
+
+    // Email notifications (fire-and-forget)
+    const emailData = {
+      orderId: purchase.id,
+      customerName: parsed.data.shippingName,
+      customerEmail: customerEmail || "",
+      phone: parsed.data.shippingPhone,
+      city: parsed.data.shippingCity,
+      address: parsed.data.shippingAddress,
+      amount: finalAmount,
+      paymentMethod: parsed.data.paymentMethod,
+      items: itemsData.map((i) => ({
+        name: i.productName,
+        quantity: i.quantity,
+        price: i.price,
+      })),
+    };
+    sendOrderConfirmation(emailData).catch(() => {});
+    sendAdminNewOrderNotification(emailData).catch(() => {});
 
     // Facebook Conversions API: send Purchase event server-side (fire-and-forget)
     const ip =
