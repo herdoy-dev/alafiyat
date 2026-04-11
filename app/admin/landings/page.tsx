@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "sonner";
 import {
   ExternalLink,
@@ -96,9 +95,9 @@ export default function AdminLandingsPage() {
       </header>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-56 w-full rounded-2xl" />
+        <div className="grid gap-6 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[520px] w-full rounded-2xl" />
           ))}
         </div>
       ) : landings.length === 0 ? (
@@ -116,56 +115,75 @@ export default function AdminLandingsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {landings.map((landing) => {
             const meta =
               TEMPLATE_META[landing.template as keyof typeof TEMPLATE_META];
             return (
               <div
                 key={landing.id}
-                className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xs"
+                className="group overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="relative aspect-[5/3] bg-muted">
-                  {landing.product.thumbnail && (
-                    <Image
-                      src={landing.product.thumbnail}
-                      alt={landing.product.name}
-                      fill
-                      className="object-cover"
-                      unoptimized
+                {/* Live landing preview via iframe, scaled down */}
+                <div className="relative h-[420px] overflow-hidden bg-muted">
+                  <div
+                    className="pointer-events-none absolute left-0 top-0"
+                    style={{
+                      width: "1280px",
+                      height: "1400px",
+                      transform: "scale(0.5)",
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <iframe
+                      src={`/l/${landing.slug}`}
+                      title={`${landing.title} preview`}
+                      className="h-full w-full border-0 bg-background"
+                      loading="lazy"
+                      sandbox="allow-same-origin allow-scripts"
                     />
-                  )}
-                  <div className="absolute left-3 top-3 flex gap-2">
+                  </div>
+                  {/* Gradient fade at bottom */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card to-transparent" />
+
+                  {/* Badges overlay */}
+                  <div className="absolute left-4 top-4 z-10 flex gap-2">
                     <Badge
                       variant={
                         landing.status === "published"
                           ? "success"
                           : "secondary"
                       }
+                      className="shadow-sm"
                     >
                       {landing.status}
                     </Badge>
                     {meta && (
-                      <Badge variant="outline" className="bg-background/85">
+                      <Badge
+                        variant="outline"
+                        className="bg-background/95 shadow-sm backdrop-blur-sm"
+                      >
                         {meta.name}
                       </Badge>
                     )}
                   </div>
-                  <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-xs text-muted-foreground">
+                  <div className="absolute right-4 top-4 z-10 inline-flex items-center gap-1 rounded-full bg-background/95 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur-sm">
                     <Eye className="h-3 w-3" />
                     {landing.views.toLocaleString()}
                   </div>
                 </div>
-                <div className="space-y-3 p-4">
+
+                {/* Footer */}
+                <div className="space-y-4 border-t border-border/60 p-5">
                   <div>
-                    <p className="line-clamp-1 font-semibold">
+                    <p className="line-clamp-1 font-display text-lg font-semibold tracking-tight">
                       {landing.title}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                       /l/{landing.slug}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="line-clamp-1">
                       {landing.product.name}
                     </span>
@@ -186,22 +204,21 @@ export default function AdminLandingsPage() {
                         Edit
                       </Link>
                     </Button>
-                    {landing.status === "published" && (
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="ghost"
-                        title="Open public page"
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="outline"
+                      title="Open public page"
+                    >
+                      <a
+                        href={`/l/${landing.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
                       >
-                        <a
-                          href={`/l/${landing.slug}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    )}
+                        <ExternalLink className="mr-1 h-3.5 w-3.5" />
+                        View
+                      </a>
+                    </Button>
                     <Button
                       size="sm"
                       variant="ghost"
