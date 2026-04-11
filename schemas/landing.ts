@@ -6,6 +6,12 @@ export const LANDING_TEMPLATES = [
   "minimal",
   "vibrant",
   "luxury",
+  "editorial",
+  "tech",
+  "nature",
+  "retro",
+  "split",
+  "urban",
 ] as const;
 
 export type LandingTemplate = (typeof LANDING_TEMPLATES)[number];
@@ -136,5 +142,35 @@ export const TEMPLATE_META: Record<
     name: "Luxury",
     description: "Dark canvas with cream accents",
     tone: "High-ticket items, gift sets",
+  },
+  editorial: {
+    name: "Editorial",
+    description: "Magazine-style spread with serif accents and pull quotes",
+    tone: "Books, artisan goods, feature stories",
+  },
+  tech: {
+    name: "Tech",
+    description: "Dark futuristic with neon accents and terminal UI",
+    tone: "Electronics, gadgets, software",
+  },
+  nature: {
+    name: "Nature",
+    description: "Earthy greens, organic shapes, and soft photography",
+    tone: "Organic, wellness, home & garden",
+  },
+  retro: {
+    name: "Retro",
+    description: "80s/90s neon colors with checker patterns and drop shadows",
+    tone: "Fun youth products, toys, snacks",
+  },
+  split: {
+    name: "Split",
+    description: "Dramatic split-screen with full-bleed imagery",
+    tone: "Fashion, apparel, lifestyle",
+  },
+  urban: {
+    name: "Urban",
+    description: "Streetwear brutalist with orange accents and numbered sections",
+    tone: "Streetwear, sneakers, limited drops",
   },
 };
